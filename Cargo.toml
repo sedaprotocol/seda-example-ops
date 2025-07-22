@@ -1,0 +1,11 @@
+[workspace]
+resolver = "2"
+default-members = ["xtask"]
+members = ["examples/single-price-feed", "xtask"]
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+opt-level = "z"
+panic = "abort"
+strip = true

@@ -1,0 +1,71 @@
+// biome-ignore assist/source/organizeImports: biome complains about this no matter what
+import {
+  buildSigningConfig,
+  postAndAwaitDataRequest,
+  type PostDataRequestInput,
+  Signer,
+} from '@seda-protocol/dev-tools';
+import { AbiCoder } from 'ethers';
+import { Command } from 'commander';
+
+async function main() {
+  const cli = new Command();
+
+  cli
+    .name('post-dr')
+    .requiredOption('--oracle-program-id <id>', 'Oracle program ID')
+    .option('--replication-factor <number>', 'Replication factor', '1')
+    .option('--exec-inputs <inputs>', 'Execution inputs for the oracle program', [])
+    .option('--tally-inputs <inputs>', 'Tally inputs for the oracle program', [])
+    .option('--memo <memo>', 'Memo for the data request', new Date().toISOString())
+    .option('--decode-abi <abi>', 'Decode the ABI of the oracle program')
+    .parse(process.argv);
+
+  const options = cli.opts();
+
+  // Takes the mnemonic from the .env file (SEDA_MNEMONIC)
+  const signingConfig = buildSigningConfig({});
+  const signer = await Signer.fromPartial(signingConfig);
+
+  console.log('Posting and waiting for a result, this may take a little while..');
+
+  const dataRequestInput: PostDataRequestInput = {
+    consensusOptions: {
+      method: 'none',
+    },
+    execProgramId: options.oracleProgramId,
+    execInputs: Buffer.from(options.execInputs),
+    tallyInputs: Buffer.from(options.tallyInputs),
+    memo: Buffer.from(options.memo),
+    replicationFactor: parseInt(options.replicationFactor, 10),
+  };
+
+  const result = await postAndAwaitDataRequest(signer, dataRequestInput, {});
+  const explorerLink = process.env.SEDA_EXPLORER_URL
+    ? `${process.env.SEDA_EXPLORER_URL}/data-requests/${result.drId}/${result.drBlockHeight}`
+    : 'Configure env.SEDA_EXPLORER_URL to generate a link to your DR';
+
+  console.table({
+    ...result,
+    blockTimestamp: result.blockTimestamp ? result.blockTimestamp.toISOString() : '',
+    explorerLink,
+  });
+
+  if (options.decodeAbi) {
+    if (result.exitCode !== 0) {
+      console.error('Data request execution failed cannot decode ABI');
+      return;
+    }
+
+    const data = result.result.trim().replace(/^0x/, '');
+    const buf = Buffer.from(data, 'hex');
+
+    const coder = AbiCoder.defaultAbiCoder();
+    const [bnArray] = coder.decode([options.decodeAbi], buf) as unknown as [bigint[]];
+
+    console.log('Decoded result:');
+    console.table(bnArray);
+  }
+}
+
+main();
