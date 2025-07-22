@@ -1,9 +1,28 @@
 use anyhow::Result;
+#[cfg(any(feature = "testnet", feature = "mainnet"))]
 use seda_sdk_rs::{Process, elog, log, proxy_http_fetch};
 
+#[cfg(feature = "testnet")]
 const API_URL: &str = "http://34.78.7.237:5384/proxy/usd/";
+#[cfg(feature = "testnet")]
+const PROXY_PUBLIC_KEY: &str = "02ee9686b002e8f57f9a2ca7089a6b587c9ef4e6c2b67159add5151a42ce5e6668";
 
+#[cfg(feature = "mainnet")]
+const API_URL: &str = "http://fill_me_in:5384/proxy/usd/";
+#[cfg(feature = "mainnet")]
+const PROXY_PUBLIC_KEY: &str = "fill_me_in";
+
+#[cfg(not(any(feature = "testnet", feature = "mainnet")))]
 pub fn execution_phase() -> Result<()> {
+    compile_error!("Either feature \"testnet\" or \"mainnet\" must be enabled");
+    Ok(())
+}
+
+#[cfg(any(feature = "testnet", feature = "mainnet"))]
+pub fn execution_phase() -> Result<()> {
+    #[cfg(feature = "mainnet")]
+    unimplemented!("Mainnet data proxy not deployed yet");
+
     // Retrieve the input parameters for the data request (DR).
     // Expected to be in the format "symbolA,SymbolB,..." (e.g., "BTC,ETH").
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
@@ -19,11 +38,7 @@ pub fn execution_phase() -> Result<()> {
     log!("Fetching price for pair: {dr_inputs_raw}");
 
     let url = [API_URL, &dr_inputs_raw].concat();
-    let response = proxy_http_fetch(
-        url,
-        Some("02ee9686b002e8f57f9a2ca7089a6b587c9ef4e6c2b67159add5151a42ce5e6668".to_string()),
-        None,
-    );
+    let response = proxy_http_fetch(url, Some(PROXY_PUBLIC_KEY.to_string()), None);
 
     // Check if the HTTP request was successfully fulfilled.
     if !response.is_ok() {

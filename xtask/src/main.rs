@@ -4,6 +4,7 @@ use anyhow::{Context, Result, bail};
 use clap::{Parser, Subcommand, ValueEnum};
 use xshell::{Cmd, Shell, cmd};
 
+/// A command-line tool for managing  the example SEDA oracle programs.
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
@@ -11,6 +12,7 @@ struct Cli {
     command: Commands,
 }
 
+/// The oracle programs that can be managed.
 #[derive(Clone, ValueEnum)]
 enum OracleProgram {
     SinglePriceFeed,
@@ -24,6 +26,7 @@ impl OracleProgram {
     }
 }
 
+/// The oracle programs that can have a data request posted to a network.
 #[derive(Subcommand)]
 enum PostableOracleProgram {
     SinglePriceFeed {
@@ -32,12 +35,24 @@ enum PostableOracleProgram {
     },
 }
 
+/// The networks that the oracle programs can be compiled and deployed to.
 #[derive(Clone, ValueEnum)]
-enum Network {
+enum SedaNetwork {
     Testnet,
     Mainnet,
 }
 
+impl SedaNetwork {
+    fn as_str(&self) -> &str {
+        match self {
+            SedaNetwork::Testnet => "testnet",
+            SedaNetwork::Mainnet => "mainnet",
+        }
+    }
+}
+
+/// The networks that can have a data request posted to them.
+/// Note: Currently, only Seda networks are supported for posting data requests.
 #[derive(Clone, ValueEnum)]
 enum PostableNetwork {
     // Ethereum,
@@ -48,33 +63,53 @@ enum PostableNetwork {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Compile an oracle program for a specific Seda network.
     Compile {
+        /// The oracle program to compile.
         oracle_program: OracleProgram,
+        /// The Seda network to compile the oracle program for.
+        #[arg(value_enum, default_value_t = SedaNetwork::Testnet)]
+        network: SedaNetwork,
     },
+    /// Deploy an oracle program to a specific Seda network.
     Deploy {
+        /// The oracle program to deploy.
         oracle_program: OracleProgram,
-        #[arg(value_enum, default_value_t = Network::Testnet)]
-        network: Network,
+        /// The Seda network to deploy the oracle program to.
+        #[arg(value_enum, default_value_t = SedaNetwork::Testnet)]
+        network: SedaNetwork,
     },
+    /// Install necessary tools for working with SEDA oracle programs.
     InstallTools,
+    /// Post a data request for a specified oracle program on a network.
     #[clap(alias = "post-dr")]
     PostDataRequest {
+        /// The ID of the oracle program to post the data request for.
+        /// This is required and should be the program ID as a string.
         #[clap(global = true, short, long)]
         id: Option<String>,
+        /// The replication factor for the data request.
+        /// This is optional and defaults to 1 if not provided.
         #[clap(global = true, short, long)]
         replication_factor: Option<u8>,
+        /// The network to post the data request to.
         #[arg(short, long, value_enum, default_value_t = PostableNetwork::SedaTestnet)]
         network: PostableNetwork,
+        /// The oracle program to post the data request for.
         #[command(subcommand)]
         oracle_program: PostableOracleProgram,
     },
+    /// Test an oracle program.
     #[clap(alias = "test-op")]
     TestOracleProgram {
+        /// The oracle program to test.
         oracle_program: OracleProgram,
+        /// The test name pattern to use.
         test_name_pattern: Option<String>,
     },
 }
 
+/// The main entry point where we exit with an error if any operation fails.
 fn main() {
     if let Err(e) = try_main() {
         eprintln!("{e}");
@@ -82,6 +117,7 @@ fn main() {
     }
 }
 
+/// The main function that executes the command-line interface for managing SEDA oracle programs.
 fn try_main() -> Result<()> {
     // Ensure our working directory is the toplevel
     {
@@ -97,10 +133,12 @@ fn try_main() -> Result<()> {
     }
 
     let sh = Shell::new()?;
-
     let cli = Cli::parse();
     match cli.command {
-        Commands::Compile { oracle_program } => compile_op(&sh, &oracle_program),
+        Commands::Compile {
+            oracle_program,
+            network,
+        } => compile_op(&sh, &oracle_program, &network),
         Commands::Deploy {
             oracle_program,
             network,
@@ -125,12 +163,18 @@ fn try_main() -> Result<()> {
     }
 }
 
-fn compile_op(sh: &Shell, oracle_program: &OracleProgram) -> Result<()> {
+/// Compile a specified oracle program for a specific Seda network.
+fn compile_op(
+    sh: &Shell,
+    oracle_program: &OracleProgram,
+    seda_network: &SedaNetwork,
+) -> Result<()> {
     let program_name = oracle_program.as_str();
+    let seda_network = seda_network.as_str();
 
     cmd!(
         sh,
-        "cargo build --target wasm32-wasip1 --release -p {program_name}"
+        "cargo build --target wasm32-wasip1 --release -p {program_name} --no-default-features --features {seda_network}"
     )
     .run()?;
     cmd!(
@@ -142,19 +186,21 @@ fn compile_op(sh: &Shell, oracle_program: &OracleProgram) -> Result<()> {
     Ok(())
 }
 
-fn deploy_op(sh: &Shell, network: &Network, oracle_program: &OracleProgram) -> Result<()> {
-    match network {
-        Network::Testnet => {
+/// Deploy a specified oracle program to a Seda network.
+fn deploy_op(sh: &Shell, seda_network: &SedaNetwork, oracle_program: &OracleProgram) -> Result<()> {
+    // These env vars are used by the `seda-sdk` CLI tool to connect to the Seda network.
+    match seda_network {
+        SedaNetwork::Testnet => {
             sh.set_var("SEDA_RPC_ENDPOINT", "https://rpc.testnet.seda.xyz");
             sh.set_var("SEDA_EXPLORER_URL", "https://testnet.explorer.seda.xyz");
         }
-        Network::Mainnet => {
+        SedaNetwork::Mainnet => {
             sh.set_var("SEDA_RPC_ENDPOINT", "https://rpc.seda.xyz");
             sh.set_var("SEDA_EXPLORER_URL", "https://explorer.seda.xyz");
         }
     }
 
-    compile_op(sh, oracle_program)?;
+    compile_op(sh, oracle_program, seda_network)?;
 
     let program_name = oracle_program.as_str();
     cmd!(
@@ -165,6 +211,7 @@ fn deploy_op(sh: &Shell, network: &Network, oracle_program: &OracleProgram) -> R
     Ok(())
 }
 
+/// Install necessary tools for working with SEDA oracle programs.
 fn install_tools(sh: &Shell) -> Result<()> {
     // check if bun is installed
     if Command::new("bun").arg("--version").output().is_err() {
@@ -175,6 +222,8 @@ fn install_tools(sh: &Shell) -> Result<()> {
     Ok(())
 }
 
+/// Post a data request for a specified oracle program on a network.
+/// With the specified ID and replication factor.
 fn post_dr(
     sh: &Shell,
     id: Option<&str>,
@@ -209,6 +258,7 @@ fn post_dr(
     }
 }
 
+/// Post a single price feed data request with the specified symbols.
 fn post_single_price_feed(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(), anyhow::Error> {
     cmd.arg("--exec-inputs")
         .arg(symbols)
@@ -218,6 +268,7 @@ fn post_single_price_feed(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<()
     Ok(())
 }
 
+/// Test an oracle program, optionally filtering tests by a name pattern.
 fn test_op(
     sh: &Shell,
     oracle_program: &OracleProgram,
@@ -225,7 +276,9 @@ fn test_op(
 ) -> Result<()> {
     let program_name = oracle_program.as_str();
 
-    compile_op(sh, oracle_program)?;
+    // We always test against the testnet feature flag- it doesn't matter which network we compiled for.
+    // Since the tests are run against the compiled program and mocking when necessary.
+    compile_op(sh, oracle_program, &SedaNetwork::Testnet)?;
 
     let test_path = format!("examples/{program_name}/tests");
     match test_name_pattern {
