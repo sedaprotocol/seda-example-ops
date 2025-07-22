@@ -75,10 +75,10 @@ You can test a oracle program with:
 cargo test-op <oracle-program>`
 ```
 
-where you can optionally pass in a test filter:
+where you can optionally pass in a test pattern:
 
 ```sh
-cargo test-op <oracle-program> <filter>
+cargo test-op <oracle-program> <test-pattern>
 ```
 
 This command will compile the oracle program for you as well before testing it.

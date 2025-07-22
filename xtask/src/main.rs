@@ -282,7 +282,10 @@ fn test_op(
 
     let test_path = format!("examples/{program_name}/tests");
     match test_name_pattern {
-        Some(pattern) => cmd!(sh, "bun test {test_path} --filter {pattern}").run()?,
+        Some(pattern) => {
+            dbg!(&pattern);
+            cmd!(sh, "bun test {test_path} -t {pattern}").run()?
+        }
         None => cmd!(sh, "bun test {test_path}").run()?,
     }
 
