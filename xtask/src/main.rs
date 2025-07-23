@@ -93,7 +93,7 @@ enum Commands {
         #[clap(global = true, short, long)]
         replication_factor: Option<u8>,
         /// The network to post the data request to.
-        #[arg(short, long, value_enum, default_value_t = PostableNetwork::SedaTestnet)]
+        #[arg(global = true,short, long, value_enum, default_value_t = PostableNetwork::SedaTestnet)]
         network: PostableNetwork,
         /// The oracle program to post the data request for.
         #[command(subcommand)]
