@@ -20,9 +20,6 @@ pub fn execution_phase() -> Result<()> {
 
 #[cfg(any(feature = "testnet", feature = "mainnet"))]
 pub fn execution_phase() -> Result<()> {
-    #[cfg(feature = "mainnet")]
-    unimplemented!("Mainnet data proxy not deployed yet");
-
     // Retrieve the input parameters for the data request (DR).
     // Expected to be in the format "symbolA,SymbolB,..." (e.g., "BTC,ETH").
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
