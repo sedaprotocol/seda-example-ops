@@ -8,9 +8,9 @@ const API_URL: &str = "http://34.78.7.237:5384/proxy/usd/";
 const PROXY_PUBLIC_KEY: &str = "02ee9686b002e8f57f9a2ca7089a6b587c9ef4e6c2b67159add5151a42ce5e6668";
 
 #[cfg(feature = "mainnet")]
-const API_URL: &str = "http://fill_me_in:5384/proxy/usd/";
+const API_URL: &str = "http://34.77.123.159:5384/proxy/usd/";
 #[cfg(feature = "mainnet")]
-const PROXY_PUBLIC_KEY: &str = "fill_me_in";
+const PROXY_PUBLIC_KEY: &str = "02095af5db08cef43871a4aa48a80bdddc5249e4234e7432c3d7eca14f31261b10";
 
 #[cfg(not(any(feature = "testnet", feature = "mainnet")))]
 pub fn execution_phase() -> Result<()> {
@@ -60,10 +60,12 @@ pub fn execution_phase() -> Result<()> {
         serde_json::value::Map<String, serde_json::value::Value>,
     >(&response.bytes)?;
 
-    let prices: Vec<u128> = response_data
-        .values()
-        .map(|e| (e["usd"].as_f64().unwrap_or_default() * 1000000f64) as u128)
-        .collect();
+    let mut prices = Vec::with_capacity(response_data.len());
+    // Extract the prices for each symbol from the response data.
+    response_data.values().for_each(|price| {
+        prices.push((price["usd"].as_f64().unwrap_or_default() * 1000000f64) as u128)
+    });
+
     log!("Fetched prices: {prices:?}");
 
     let result = serde_json::to_vec(&prices)?;

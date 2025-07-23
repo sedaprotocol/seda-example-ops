@@ -38,8 +38,9 @@ You will need to have run `bun install or cargo install-tools` to have the bun d
 > For example `cargo run compile single-price-feed` would work the same as `cargo compile single-price-feed`.
 
 > ![NOTE]
-> For some commands, they may require your `SEDA_MNEMONIC`.
+> For some commands, they may require your `seda mnemonic`.
 > This is set via an env variable, so you can also use the example [.env](.env.example) file we have here to fill it out.
+> There is one for `TESTNET` and `MAINNET`.
 
 ### Building
 

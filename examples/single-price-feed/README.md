@@ -1,7 +1,8 @@
 # Simple Price Feed
 
 Deployments:
-- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/2f0c7eea6764398e1e5bf9cde27f206620a89d58b0e37f97cdb6567265c6c2b9)
+- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/ea3860e9f537eed6b4ac4ee1c97dea0fd1b7e33a29afaa846ad29671ddaa194e)
+<!-- - [Mainnet](https://mainnet.explorer.seda.xyz/oracle-programs/) -->
 
 ## Execution Phase:
 

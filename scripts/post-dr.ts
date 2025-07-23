@@ -8,6 +8,14 @@ import {
 import { AbiCoder } from 'ethers';
 import { Command } from 'commander';
 
+function truncate(str: string, maxLen: number = 50): string {
+  if (str.length <= maxLen) return str;
+  const sliceLen = maxLen - 3;
+  const head = Math.ceil(sliceLen / 2);
+  const tail = Math.floor(sliceLen / 2);
+  return `${str.slice(0, head)}...${str.slice(-tail)}`;
+}
+
 async function main() {
   const cli = new Command();
 
@@ -24,7 +32,9 @@ async function main() {
   const options = cli.opts();
 
   // Takes the mnemonic from the .env file (SEDA_MNEMONIC)
-  const signingConfig = buildSigningConfig({});
+  const signingConfig = buildSigningConfig({
+    mnemonic: process.env.SEDA_MNEMONIC,
+  });
   const signer = await Signer.fromPartial(signingConfig);
 
   console.log('Posting and waiting for a result, this may take a little while..');
@@ -45,11 +55,14 @@ async function main() {
     ? `${process.env.SEDA_EXPLORER_URL}/data-requests/${result.drId}/${result.drBlockHeight}`
     : 'Configure env.SEDA_EXPLORER_URL to generate a link to your DR';
 
-  console.table({
+  const printableResult = {
     ...result,
     blockTimestamp: result.blockTimestamp ? result.blockTimestamp.toISOString() : '',
     explorerLink,
-  });
+  };
+  const maxLength = result.drId.length;
+  printableResult.result = truncate(result.result, maxLength);
+  console.table(printableResult);
 
   if (options.decodeAbi) {
     if (result.exitCode !== 0) {

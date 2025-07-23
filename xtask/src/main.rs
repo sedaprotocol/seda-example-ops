@@ -132,6 +132,8 @@ fn try_main() -> Result<()> {
         std::env::set_current_dir(path.trim()).with_context(|| "Changing to toplevel")?;
     }
 
+    dotenvy::dotenv()?;
+
     let sh = Shell::new()?;
     let cli = Cli::parse();
     match cli.command {
@@ -189,16 +191,18 @@ fn compile_op(
 /// Deploy a specified oracle program to a Seda network.
 fn deploy_op(sh: &Shell, seda_network: &SedaNetwork, oracle_program: &OracleProgram) -> Result<()> {
     // These env vars are used by the `seda-sdk` CLI tool to connect to the Seda network.
-    match seda_network {
-        SedaNetwork::Testnet => {
-            sh.set_var("SEDA_RPC_ENDPOINT", "https://rpc.testnet.seda.xyz");
-            sh.set_var("SEDA_EXPLORER_URL", "https://testnet.explorer.seda.xyz");
-        }
-        SedaNetwork::Mainnet => {
-            sh.set_var("SEDA_RPC_ENDPOINT", "https://rpc.seda.xyz");
-            sh.set_var("SEDA_EXPLORER_URL", "https://explorer.seda.xyz");
-        }
-    }
+    let (rpc, explorer, mnemonic) = match seda_network {
+        SedaNetwork::Testnet => (
+            "https://rpc.testnet.seda.xyz",
+            "https://testnet.explorer.seda.xyz",
+            std::env::var("SEDA_MNEMONIC_TESTNET")?,
+        ),
+        SedaNetwork::Mainnet => (
+            "https://rpc.seda.xyz",
+            "https://explorer.seda.xyz",
+            std::env::var("SEDA_MNEMONIC_MAINNET")?,
+        ),
+    };
 
     compile_op(sh, oracle_program, seda_network)?;
 
@@ -207,6 +211,9 @@ fn deploy_op(sh: &Shell, seda_network: &SedaNetwork, oracle_program: &OracleProg
         sh,
         "bunx seda-sdk oracle-program upload ./target/wasm32-wasip1/release/{program_name}.wasm"
     )
+    .env("SEDA_RPC_ENDPOINT", rpc)
+    .env("SEDA_EXPLORER_URL", explorer)
+    .env("SEDA_MNEMONIC", mnemonic)
     .run()?;
     Ok(())
 }
@@ -233,19 +240,24 @@ fn post_dr(
 ) -> Result<()> {
     let id = id.ok_or_else(|| anyhow::anyhow!("Oracle program ID is required"))?;
 
-    match network {
-        PostableNetwork::SedaTestnet => {
-            sh.set_var("SEDA_RPC_ENDPOINT", "https://rpc.testnet.seda.xyz");
-            sh.set_var("SEDA_EXPLORER_URL", "https://testnet.explorer.seda.xyz");
-        }
-        PostableNetwork::Seda => {
-            sh.set_var("SEDA_RPC_ENDPOINT", "https://rpc.seda.xyz");
-            sh.set_var("SEDA_EXPLORER_URL", "https://explorer.seda.xyz");
-        }
-    }
+    let (rpc, explorer, mnemonic) = match network {
+        PostableNetwork::SedaTestnet => (
+            "https://rpc.testnet.seda.xyz",
+            "https://testnet.explorer.seda.xyz",
+            std::env::var("SEDA_MNEMONIC_TESTNET")?,
+        ),
+        PostableNetwork::Seda => (
+            "https://rpc.seda.xyz",
+            "https://explorer.seda.xyz",
+            std::env::var("SEDA_MNEMONIC_MAINNET")?,
+        ),
+    };
 
     let cmd = sh
         .cmd("bun")
+        .env("SEDA_RPC_ENDPOINT", rpc)
+        .env("SEDA_EXPLORER_URL", explorer)
+        .env("SEDA_MNEMONIC", mnemonic)
         .arg("run")
         .arg("./scripts/post-dr.ts")
         .arg("--oracle-program-id")
