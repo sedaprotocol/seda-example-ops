@@ -2,7 +2,7 @@
 
 Deployments:
 - [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/ea3860e9f537eed6b4ac4ee1c97dea0fd1b7e33a29afaa846ad29671ddaa194e)
-<!-- - [Mainnet](https://mainnet.explorer.seda.xyz/oracle-programs/) -->
+- [Mainnet](https://mainnet.explorer.seda.xyz/oracle-programs/ae31c9c4026d259cabab6df4e012f4837175fa27572c49e313337516f971772a)
 
 ## Execution Phase:
 
