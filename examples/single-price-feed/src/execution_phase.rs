@@ -21,7 +21,7 @@ pub fn execution_phase() -> Result<()> {
 #[cfg(any(feature = "testnet", feature = "mainnet"))]
 pub fn execution_phase() -> Result<()> {
     // Retrieve the input parameters for the data request (DR).
-    // Expected to be in the format that is coingecko asset id "assetA,assetB,..." (e.g., "bitcoin,ethereum").
+    // Expected to be in the format "symbolA,SymbolB,..." (e.g., "BTC,ETH").
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
 
     if dr_inputs_raw.is_empty() {
