@@ -21,7 +21,7 @@ pub fn execution_phase() -> Result<()> {
 #[cfg(any(feature = "testnet", feature = "mainnet"))]
 pub fn execution_phase() -> Result<()> {
     // Retrieve the input parameters for the data request (DR).
-    // Expected to be in the format "symbolA,SymbolB,..." (e.g., "BTC,ETH").
+    // Expected to be in the format that is coingecko asset id "assetA,assetB,..." (e.g., "bitcoin,ethereum").
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
 
     if dr_inputs_raw.is_empty() {
@@ -32,7 +32,7 @@ pub fn execution_phase() -> Result<()> {
     }
 
     // Log the asset pair being fetched as part of the Execution Standard Out.
-    log!("Fetching price for pair: {dr_inputs_raw}");
+    log!("Fetching price for asset(s): {dr_inputs_raw}");
 
     let url = [API_URL, &dr_inputs_raw].concat();
     let response = proxy_http_fetch(url, Some(PROXY_PUBLIC_KEY.to_string()), None);
