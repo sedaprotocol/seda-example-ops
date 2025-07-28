@@ -1,7 +1,13 @@
 [workspace]
 resolver = "2"
 default-members = ["xtask"]
-members = ["examples/single-price-feed", "xtask"]
+members = [
+	"examples/single-commodity-price",
+	"examples/single-equity-price",
+	"examples/multi-price-feed",
+	"examples/single-price-feed",
+	"xtask",
+]
 
 [profile.release]
 codegen-units = 1

@@ -445,6 +445,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
+name = "multi-price-feed"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ethabi",
+ "seda-sdk-rs",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -693,6 +704,28 @@ checksum = "75872d278a8f37ef87fa0ddbda7802605cb18344497949862c0d4dcb291eba60"
 dependencies = [
  "digest",
  "keccak",
+]
+
+[[package]]
+name = "single-commodity-price"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ethabi",
+ "seda-sdk-rs",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "single-equity-price"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ethabi",
+ "seda-sdk-rs",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

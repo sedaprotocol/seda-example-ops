@@ -15,12 +15,18 @@ struct Cli {
 /// The oracle programs that can be managed.
 #[derive(Clone, ValueEnum)]
 enum OracleProgram {
+    SingleCommodityPrice,
+    SingleEquityPrice,
+    MultiPriceFeed,
     SinglePriceFeed,
 }
 
 impl OracleProgram {
     fn as_str(&self) -> &str {
         match self {
+            OracleProgram::SingleCommodityPrice => "single-commodity-price",
+            OracleProgram::SingleEquityPrice => "single-equity-price",
+            OracleProgram::MultiPriceFeed => "multi-price-feed",
             OracleProgram::SinglePriceFeed => "single-price-feed",
         }
     }
@@ -29,6 +35,18 @@ impl OracleProgram {
 /// The oracle programs that can have a data request posted to a network.
 #[derive(Subcommand)]
 enum PostableOracleProgram {
+    SingleCommodityPrice {
+        #[clap(help = "A singular commodity symbol to fetch prices for (e.g., XAU, BRN, etc.)")]
+        symbol: String,
+    },
+    SingleEquityPrice {
+        #[clap(help = "A singular equity symbol to fetch prices for (e.g., AAPL/GOOGL/etc.)")]
+        symbol: String,
+    },
+    MultiPriceFeed {
+        #[clap(help = "Comma-separated list of symbols to fetch prices for (e.g., BTC,ETH)")]
+        symbols: String,
+    },
     SinglePriceFeed {
         #[clap(help = "Comma-separated list of symbols to fetch prices for (e.g., BTC,ETH)")]
         symbols: String,
@@ -61,6 +79,39 @@ enum PostableNetwork {
     Seda,
 }
 
+#[derive(clap::Args)]
+struct PostDataRequest {
+    /// The ID of the oracle program to post the data request for.
+    /// This is required and should be the program ID as a string.
+    #[clap(global = true, short, long)]
+    id: Option<String>,
+    /// The replication factor for the data request.
+    /// This is optional and defaults to 1 if not provided.
+    #[clap(global = true, short, long)]
+    replication_factor: Option<u8>,
+    /// The gas price to use for the data request.
+    /// This is optional and can be specified to control the gas price for the transaction.
+    /// If not provided, the default gas price will be used.
+    #[clap(global = true, short, long)]
+    gas_price: Option<u64>,
+    /// The execution gas limit for the data request.
+    /// This is optional and can be specified to control the gas limit for the execution phase.
+    /// If not provided, the default execution gas limit will be used.
+    #[arg(global = true, short, long)]
+    exec_gas_limit: Option<u128>,
+    /// The tally gas limit for the data request.
+    /// This is optional and can be specified to control the gas limit for the tally phase.
+    /// If not provided, the default tally gas limit will be used.
+    #[arg(global = true, short, long)]
+    tally_gas_limit: Option<u128>,
+    /// The network to post the data request to.
+    #[arg(global = true,short, long, value_enum, default_value_t = PostableNetwork::SedaTestnet)]
+    network: PostableNetwork,
+    /// The oracle program to post the data request for.
+    #[command(subcommand)]
+    oracle_program: PostableOracleProgram,
+}
+
 #[derive(Subcommand)]
 enum Commands {
     /// Compile an oracle program for a specific Seda network.
@@ -83,22 +134,7 @@ enum Commands {
     InstallTools,
     /// Post a data request for a specified oracle program on a network.
     #[clap(alias = "post-dr")]
-    PostDataRequest {
-        /// The ID of the oracle program to post the data request for.
-        /// This is required and should be the program ID as a string.
-        #[clap(global = true, short, long)]
-        id: Option<String>,
-        /// The replication factor for the data request.
-        /// This is optional and defaults to 1 if not provided.
-        #[clap(global = true, short, long)]
-        replication_factor: Option<u8>,
-        /// The network to post the data request to.
-        #[arg(global = true,short, long, value_enum, default_value_t = PostableNetwork::SedaTestnet)]
-        network: PostableNetwork,
-        /// The oracle program to post the data request for.
-        #[command(subcommand)]
-        oracle_program: PostableOracleProgram,
-    },
+    PostDataRequest(PostDataRequest),
     /// Test an oracle program.
     #[clap(alias = "test-op")]
     TestOracleProgram {
@@ -146,18 +182,7 @@ fn try_main() -> Result<()> {
             network,
         } => deploy_op(&sh, &network, &oracle_program),
         Commands::InstallTools => install_tools(&sh),
-        Commands::PostDataRequest {
-            id,
-            replication_factor,
-            oracle_program,
-            network,
-        } => post_dr(
-            &sh,
-            id.as_deref(),
-            replication_factor.unwrap_or(1),
-            &network,
-            &oracle_program,
-        ),
+        Commands::PostDataRequest(args) => args.post_dr(&sh),
         Commands::TestOracleProgram {
             oracle_program,
             test_name_pattern,
@@ -229,49 +254,108 @@ fn install_tools(sh: &Shell) -> Result<()> {
     Ok(())
 }
 
-/// Post a data request for a specified oracle program on a network.
-/// With the specified ID and replication factor.
-fn post_dr(
-    sh: &Shell,
-    id: Option<&str>,
-    replication_factor: u8,
-    network: &PostableNetwork,
-    oracle_program: &PostableOracleProgram,
-) -> Result<()> {
-    let id = id.ok_or_else(|| anyhow::anyhow!("Oracle program ID is required"))?;
+impl PostDataRequest {
+    /// Post a data request for a specified oracle program on a network.
+    /// With the specified ID and replication factor.
+    fn post_dr(self, sh: &Shell) -> Result<()> {
+        let id = self
+            .id
+            .ok_or_else(|| anyhow::anyhow!("Oracle program ID is required"))?;
 
-    let (rpc, explorer, mnemonic) = match network {
-        PostableNetwork::SedaTestnet => (
-            "https://rpc.testnet.seda.xyz",
-            "https://testnet.explorer.seda.xyz",
-            std::env::var("SEDA_MNEMONIC_TESTNET")?,
-        ),
-        PostableNetwork::Seda => (
-            "https://rpc.seda.xyz",
-            "https://explorer.seda.xyz",
-            std::env::var("SEDA_MNEMONIC_MAINNET")?,
-        ),
-    };
+        let (rpc, explorer, mnemonic) = match self.network {
+            PostableNetwork::SedaTestnet => (
+                "https://rpc.testnet.seda.xyz",
+                "https://testnet.explorer.seda.xyz",
+                std::env::var("SEDA_MNEMONIC_TESTNET")?,
+            ),
+            PostableNetwork::Seda => (
+                "https://rpc.seda.xyz",
+                "https://explorer.seda.xyz",
+                std::env::var("SEDA_MNEMONIC_MAINNET")?,
+            ),
+        };
 
-    let cmd = sh
-        .cmd("bun")
-        .env("SEDA_RPC_ENDPOINT", rpc)
-        .env("SEDA_EXPLORER_URL", explorer)
-        .env("SEDA_MNEMONIC", mnemonic)
-        .arg("run")
-        .arg("./scripts/post-dr.ts")
-        .arg("--oracle-program-id")
-        .arg(id)
-        .arg("--replication-factor")
-        .arg(replication_factor.to_string());
+        let cmd = sh
+            .cmd("bun")
+            .env("SEDA_RPC_ENDPOINT", rpc)
+            .env("SEDA_EXPLORER_URL", explorer)
+            .env("SEDA_MNEMONIC", mnemonic)
+            .arg("run")
+            .arg("./scripts/post-dr.ts")
+            .arg("--oracle-program-id")
+            .arg(id)
+            .arg("--replication-factor")
+            .arg(self.replication_factor.unwrap_or(1).to_string());
 
-    match oracle_program {
-        PostableOracleProgram::SinglePriceFeed { symbols } => post_single_price_feed(cmd, symbols),
+        let cmd = if let Some(gas_price) = self.gas_price {
+            cmd.arg("--gas-price").arg(gas_price.to_string())
+        } else {
+            cmd
+        };
+
+        let cmd = if let Some(exec_gas_limit) = self.exec_gas_limit {
+            cmd.arg("--exec-gas-limit").arg(exec_gas_limit.to_string())
+        } else {
+            cmd
+        };
+
+        let cmd = if let Some(tally_gas_limit) = self.tally_gas_limit {
+            cmd.arg("--tally-gas-limit")
+                .arg(tally_gas_limit.to_string())
+        } else {
+            cmd
+        };
+
+        match self.oracle_program {
+            PostableOracleProgram::SingleCommodityPrice { symbol } => {
+                post_single_commodity_price(cmd, &symbol)
+            }
+            PostableOracleProgram::SingleEquityPrice { symbol } => {
+                post_single_equity_price(cmd, &symbol)
+            }
+            PostableOracleProgram::MultiPriceFeed { symbols } => {
+                post_multi_price_feed(cmd, &symbols)
+            }
+            PostableOracleProgram::SinglePriceFeed { symbols } => {
+                post_single_price_feed(cmd, &symbols)
+            }
+        }
     }
+}
+
+fn post_single_commodity_price(
+    cmd: Cmd<'_>,
+    symbol: &str,
+) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs")
+        .arg(symbol)
+        .arg("--decode-abi")
+        .arg("uint256")
+        .run()?;
+    Ok(())
+}
+
+fn post_single_equity_price(cmd: Cmd<'_>, symbol: &str) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs")
+        .arg(symbol)
+        .arg("--decode-abi")
+        .arg("uint256")
+        .run()?;
+    Ok(())
 }
 
 /// Post a single price feed data request with the specified symbols.
 fn post_single_price_feed(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs")
+        .arg(symbols)
+        .arg("--decode-abi")
+        .arg("uint256[]")
+        .run()?;
+    Ok(())
+}
+
+/// Post a multi price feed data request with the specified symbols.
+fn post_multi_price_feed(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(), anyhow::Error> {
     cmd.arg("--exec-inputs")
         .arg(symbols)
         .arg("--decode-abi")
@@ -292,7 +376,7 @@ fn test_op(
     // Since the tests are run against the compiled program and mocking when necessary.
     compile_op(sh, oracle_program, &SedaNetwork::Testnet)?;
 
-    let test_path = format!("examples/{program_name}/tests");
+    let test_path = format!("examples/tests/{program_name}.test.ts");
     match test_name_pattern {
         Some(pattern) => {
             dbg!(&pattern);

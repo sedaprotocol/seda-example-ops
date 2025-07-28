@@ -17,7 +17,6 @@ Returning the list of prices in USD in the order the symbols were entered.
 It takes no arguments for the tally phase.
 
 The tally phase takes the reveals.
-It then takes the median of each symbol, before ABI encoding the result, as a `uint256[]`, and posting it. Again keeping the same order as the symbols passed to the execution arguments.
-This way the result can handily be decoded by an ETH network.
+It then takes the median of each symbol, before ABI encoding the result, as a `uint256[]`, and posting it. This way the result can handily be decoded by an ETH network. This also keeps the same order as the symbols passed to the execution arguments.
 
 For example, if you asked for the `BTC,ETH` your result would be `[median_of_BTC, median_of_ETH]` ABI encoded as a `uint256[]`.

@@ -27,6 +27,9 @@ async function main() {
     .option('--tally-inputs <inputs>', 'Tally inputs for the oracle program', [])
     .option('--memo <memo>', 'Memo for the data request', new Date().toISOString())
     .option('--decode-abi <abi>', 'Decode the ABI of the oracle program')
+    .option('--gas-price <price>', 'Gas price for the transaction')
+    .option('--exec-gas-limit <limit>', 'Execution gas limit for the data request')
+    .option('--tally-gas-limit <limit>', 'Tally gas limit for the data request')
     .parse(process.argv);
 
   const options = cli.opts();
@@ -48,6 +51,9 @@ async function main() {
     tallyInputs: Buffer.from(options.tallyInputs),
     memo: Buffer.from(options.memo),
     replicationFactor: parseInt(options.replicationFactor, 10),
+    gasPrice: options.gasPrice ? BigInt(options.gasPrice) : undefined,
+    execGasLimit: options.execGasLimit ? parseInt(options.execGasLimit, 10) : undefined,
+    tallyGasLimit: options.tallyGasLimit ? parseInt(options.tallyGasLimit, 10) : undefined,
   };
 
   const result = await postAndAwaitDataRequest(signer, dataRequestInput, {});
