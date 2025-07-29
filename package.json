@@ -22,6 +22,7 @@
     "ethers": "^6.15.0"
   },
   "dependencies": {
-    "@seda-protocol/vm": "^1.0.15"
+    "@seda-protocol/vm": "^1.0.15",
+    "ts-pattern": "^5.8.0"
   }
 }

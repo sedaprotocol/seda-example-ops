@@ -359,7 +359,7 @@ fn post_multi_price_feed(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(),
     cmd.arg("--exec-inputs")
         .arg(symbols)
         .arg("--decode-abi")
-        .arg("uint256[]")
+        .arg("uint256")
         .run()?;
     Ok(())
 }
@@ -378,10 +378,7 @@ fn test_op(
 
     let test_path = format!("examples/tests/{program_name}.test.ts");
     match test_name_pattern {
-        Some(pattern) => {
-            dbg!(&pattern);
-            cmd!(sh, "bun test {test_path} -t {pattern}").run()?
-        }
+        Some(pattern) => cmd!(sh, "bun test {test_path} -t {pattern}").run()?,
         None => cmd!(sh, "bun test {test_path}").run()?,
     }
 

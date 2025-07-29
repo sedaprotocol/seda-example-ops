@@ -48,7 +48,7 @@ export function createFailedReveal(): {
   };
 }
 
-function genericHandleVmResult<T>(vmResult: VmResult, exitCode: number, expected: T, codec?: string) {
+function genericHandleTallyVmResult<T>(vmResult: VmResult, exitCode: number, expected: T, codec?: string) {
   console.debug('Stdout:', vmResult.stdout);
   console.debug('Stderr:', vmResult.stderr);
   if (vmResult.exitCode !== 0) {
@@ -63,10 +63,24 @@ function genericHandleVmResult<T>(vmResult: VmResult, exitCode: number, expected
   }
 }
 
-export function handleBigIntVmResult(vmResult: VmResult, exitCode: number, expected: bigint) {
-  genericHandleVmResult(vmResult, exitCode, expected, 'uint256');
+export function handleBigIntExecutionVmResult(vmResult: VmResult, exitCode: number, expected: bigint) {
+  genericHandleTallyVmResult(vmResult, exitCode, expected);
+  // convert vmResult.result from bytes of json(serde_json::to_vec) to a buffer
+  const jsonString = Buffer.from(vmResult.result).toString('utf-8');
+  expect(jsonString).toBeDefined();
+  expect(jsonString.length).toBeGreaterThan(0);
+  const jsonArray = JSON.parse(jsonString);
+  // convert Uint8Array of 16bytes(u128) to bigint from le_bytes
+  const buf = Buffer.from(jsonArray);
+  expect(buf.length).toBe(16);
+  const value = BigInt.asUintN(128, BigInt(buf.readBigUInt64LE(0)) + (BigInt(buf.readBigUInt64LE(8)) << 64n));
+  expect(value).toBe(expected);
 }
 
-export function handleBigIntArrayVmResult(vmResult: VmResult, exitCode: number, expected: bigint[]) {
-  genericHandleVmResult(vmResult, exitCode, expected, 'uint256[]');
+export function handleBigIntTallyVmResult(vmResult: VmResult, exitCode: number, expected: bigint) {
+  genericHandleTallyVmResult(vmResult, exitCode, expected, 'uint256');
+}
+
+export function handleBigIntArrayTallyVmResult(vmResult: VmResult, exitCode: number, expected: bigint[]) {
+  genericHandleTallyVmResult(vmResult, exitCode, expected, 'uint256[]');
 }

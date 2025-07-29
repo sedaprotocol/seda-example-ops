@@ -8,7 +8,7 @@ import {
 import {
   createSuccessfulBigIntArrayReveal as createSuccessfulReveal,
   createFailedReveal,
-  handleBigIntArrayVmResult as handleVmResult,
+  handleBigIntArrayTallyVmResult as handleVmResult,
 } from './utils.js';
 
 const WASM_PATH = 'target/wasm32-wasip1/release/single-price-feed.wasm';

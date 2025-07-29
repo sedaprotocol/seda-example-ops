@@ -8,7 +8,7 @@ import {
 import {
   createSuccessfulBigIntReveal as createSuccessfulReveal,
   createFailedReveal,
-  handleBigIntVmResult as handleVmResult,
+  handleBigIntTallyVmResult as handleVmResult,
 } from './utils.js';
 
 const WASM_PATH = 'target/wasm32-wasip1/release/single-equity-price.wasm';

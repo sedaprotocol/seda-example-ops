@@ -12,6 +12,8 @@
         "@types/commander": "^2.12.5",
         "commander": "^14.0.0",
         "ethers": "^6.15.0",
+        "true-myth": "^9.0.1",
+        "ts-pattern": "^5.8.0",
       },
     },
   },
@@ -200,7 +202,9 @@
 
     "tough-cookie": ["tough-cookie@5.1.2", "", { "dependencies": { "tldts": "^6.1.32" } }, "sha512-FVDYdxtnj0G6Qm/DhNPSb8Ju59ULcup3tuJxkFb5K8Bv2pUXILbf0xZWU8PX8Ov19OXljbUyveOFwRMwkXzO+A=="],
 
-    "true-myth": ["true-myth@7.4.0", "", {}, "sha512-HRaZmfP3Y6JY2qb6M2gndkfb8dpwk6M4xSWD3i1JXUabmur9SaBNcf+oZ1ARU+51qoDVLcLCsjKN9UQwiW2ojQ=="],
+    "true-myth": ["true-myth@9.0.1", "", {}, "sha512-8ePgamjgV3CKDI43o6eUtid+9iadfEKUiu2WTucbeCnPTyDOQpZ4svCuozLwm9S4hzUolOclsUCJf3yjQg3g/Q=="],
+
+    "ts-pattern": ["ts-pattern@5.8.0", "", {}, "sha512-kIjN2qmWiHnhgr5DAkAafF9fwb0T5OhMVSWrm8XEdTFnX6+wfXwYOFjeF86UZ54vduqiR7BfqScFmXSzSaH8oA=="],
 
     "tslib": ["tslib@2.7.0", "", {}, "sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA=="],
 
@@ -226,9 +230,11 @@
 
     "@cosmjs/socket/ws": ["ws@7.5.10", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": "^5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ=="],
 
-    "@seda-protocol/utils/true-myth": ["true-myth@8.5.2", "", {}, "sha512-xkORnYI949ingIpqlRQzqMCQJifCWWoDb7l+TC6dg8IaMjhF4gIGjT420rZ7368/oTPdH3hO2wCOhHS4UTcgyQ=="],
+    "@seda-protocol/dev-tools/true-myth": ["true-myth@7.4.0", "", {}, "sha512-HRaZmfP3Y6JY2qb6M2gndkfb8dpwk6M4xSWD3i1JXUabmur9SaBNcf+oZ1ARU+51qoDVLcLCsjKN9UQwiW2ojQ=="],
 
     "@seda-protocol/vm/@noble/hashes": ["@noble/hashes@1.4.0", "", {}, "sha512-V1JJ1WTRUqHHrOSh597hURcMqVKVGL/ea3kv0gSnEdsEZ0/+VyPghM1lMNGc00z7CIQorSvbKpuJkxvuHbvdbg=="],
+
+    "@seda-protocol/vm/true-myth": ["true-myth@7.4.0", "", {}, "sha512-HRaZmfP3Y6JY2qb6M2gndkfb8dpwk6M4xSWD3i1JXUabmur9SaBNcf+oZ1ARU+51qoDVLcLCsjKN9UQwiW2ojQ=="],
 
     "bun-types/@types/node": ["@types/node@22.12.0", "", { "dependencies": { "undici-types": "~6.20.0" } }, "sha512-Fll2FZ1riMjNmlmJOdAyY5pUbkftXslB5DgEzlIuNaiWhXd00FhWxVC/r4yV/4wBb9JfImTu+jiSvXTkJ7F/gA=="],
 
