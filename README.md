@@ -123,4 +123,4 @@ To post the `single-price-feed` dr example with: the argument `BTC,ETH`, the id,
 
 ## License
 
-Contents of this repository are open source under [EMPTY For Now License](LICENSE).
+Contents of this repository are open source under the [MIT license](LICENSE).
