@@ -22,7 +22,10 @@ This oracle template shows official oracle program use cases. They are run on bo
 
 There are a few example programs in here:
 
-- [Single Price Feed](./examples/single-price-feed/README.md)
+- [Single Commodity Price](./examples/single-commodity-price/README.md): A way to get the price of a commodity using the DxFeed API behind a data proxy.
+- [Single Equity Price](./examples/single-commodity-price/README.md): A way to get the price of an equity using the DxFeed API behind a data proxy.
+- [Multi Price Feed](./examples/multi-price-feed/README.md): A price pair feed using the free APIs for Binance, Mexc, and Okx.
+- [Single Price Feed](./examples/single-price-feed/README.md): A price feed using the pro Coingecko API behind a data proxy.
 
 You can interact with the examples in various ways.
 To see help information for them all you can run:
