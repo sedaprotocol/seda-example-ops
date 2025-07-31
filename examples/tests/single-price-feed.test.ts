@@ -64,6 +64,10 @@ describe('single price feed', () => {
         expected: [150n],
       },
       {
+        inputs: [[200n], [100n]],
+        expected: [150n],
+      },
+      {
         inputs: [[100n], [200n], [300n], [400n], [500n], [600n], [700n], [800n], [900n]],
         expected: [500n],
       },
@@ -90,6 +94,10 @@ describe('single price feed', () => {
 
   describe('tally works with 5 prices', () => {
     const cases = [
+      {
+        inputs: [[100n, 200n, 300n, 400n, 500n]],
+        expected: [100n, 200n, 300n, 400n, 500n],
+      },
       {
         inputs: [[100n, 200n, 300n, 400n, 500n]],
         expected: [100n, 200n, 300n, 400n, 500n],

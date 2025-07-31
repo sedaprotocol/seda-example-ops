@@ -137,6 +137,19 @@ describe('multi price feed', () => {
     handleTallyVmResult(vmResult, 0, 550n);
   });
 
+  it('works with unsorted prices', async () => {
+    const oracleProgram = await file(WASM_PATH).arrayBuffer();
+    const vmResult = await testOracleProgramTally(Buffer.from(oracleProgram), Buffer.from('tally-inputs'), [
+      createSuccessfulReveal(500n),
+      createSuccessfulReveal(100n),
+      createSuccessfulReveal(300n),
+      createSuccessfulReveal(200n),
+      createSuccessfulReveal(200n),
+      createSuccessfulReveal(400n),
+    ]);
+    handleTallyVmResult(vmResult, 0, 250n);
+  });
+
   describe('tally works with errored executions', () => {
     it('should ignore the errored execution', async () => {
       const oracleProgram = await file(WASM_PATH).arrayBuffer();
