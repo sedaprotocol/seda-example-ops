@@ -143,6 +143,12 @@ enum Commands {
         /// The test name pattern to use.
         test_name_pattern: Option<String>,
     },
+    /// Test all oracle programs.
+    #[clap(alias = "test-all-ops")]
+    TestAllOraclePrograms {
+        /// The test name pattern to use.
+        test_name_pattern: Option<String>,
+    },
 }
 
 /// The main entry point where we exit with an error if any operation fails.
@@ -187,6 +193,18 @@ fn try_main() -> Result<()> {
             oracle_program,
             test_name_pattern,
         } => test_op(&sh, &oracle_program, test_name_pattern.as_deref()),
+        Commands::TestAllOraclePrograms { test_name_pattern } => {
+            let programs = [
+                OracleProgram::SingleCommodityPrice,
+                OracleProgram::SingleEquityPrice,
+                OracleProgram::MultiPriceFeed,
+                OracleProgram::SinglePriceFeed,
+            ];
+            for program in programs {
+                test_op(&sh, &program, test_name_pattern.as_deref())?;
+            }
+            Ok(())
+        }
     }
 }
 

@@ -12,9 +12,13 @@ This oracle template shows official oracle program use cases. They are run on bo
 
 ## Requirements
 
+Make sure the below are installed and in your `PATH`.
+
 - **Bun**: Install [Bun](https://bun.sh/) for package management and building.
 - **Rust**: Install [Rust](https://rustup.rs/) for development and building.
 - **WASM**: Install the [`wasm32-wasip1`](https://doc.rust-lang.org/rustc/platform-support/wasm32-wasip1.html) target with `rustup target add wasm32-wasip1` for WASM compilation.
+- **WASM-OPT**: Can be installed via `bun/npm/etc install -g binaryren`, `cargo install binaryren`, `cargo binstall binaryren`, or your OS package manager.
+- **WABT**: Can be installed via `bun/npm/etc install -g wabt`, or your OS package manager.
 
 - Alternatively, use the [devcontainer](https://containers.dev/) for a pre-configured environment.
 
@@ -86,6 +90,12 @@ cargo test-op <oracle-program> <test-pattern>
 ```
 
 This command will compile the oracle program for you as well before testing it.
+
+You can test all programs at once with:
+
+```sh
+cargo test-all-ops
+```
 
 ### Uploading an Oracle Program
 
