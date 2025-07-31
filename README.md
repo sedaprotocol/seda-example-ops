@@ -34,7 +34,7 @@ To see help information for them all you can run:
 cargo xtask --help
 ```
 
-You will need to have run `bun install or cargo install-tools` to have the bun dependencies installed.
+You will need to have run `bun install or cargo install-tools` to have the bun dependencies installed. To see the dependencies 
 
 > [!NOTE]
 > All commands can also be run via `cargo run <command> <options>`.
@@ -104,7 +104,6 @@ This command will compile the oracle program for you as well before uploading it
 
 ### Submitting a Data Request
 
-
 Submitting a Data Request to the SEDA network, run:
 
 ```sh
@@ -123,6 +122,14 @@ To post the `single-price-feed` dr example with: the argument `BTC,ETH`, the id,
 
 > [!IMPORTANT]  
 > Make sure you have all the environment variables set in `.env` file.
+
+### Formatting and Linting
+
+The TS side is handled by [Biome](https://biomejs.dev/): `biome format` and `biome format fix`.
+
+The Rust side is handled by `cargo`: `cargo fmt --all -- --check` and `cargo fmt --all`.
+
+Rust additionally has linting via `clippy` with `cargo clippy --all-features --locked -- -D warnings`.
 
 ## License
 
