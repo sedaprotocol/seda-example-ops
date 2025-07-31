@@ -1,0 +1,58 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  format-and-test:
+    name: Format and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip1
+          components: clippy, rustfmt
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Check Rust formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        run: cargo clippy --all-features --locked -- -D warnings
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Check TS formatting
+        run: bunx biome check .
+
+      - name: Install wasm-opt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binaryen
+
+      - name: Install wasm-strip
+        run: |
+          curl -sSL https://github.com/WebAssembly/wabt/releases/download/1.0.31/wabt-1.0.31-ubuntu.tar.gz | tar -xz
+          sudo cp wabt-1.0.31/bin/wasm-strip /usr/local/bin/
+          sudo chmod +x /usr/local/bin/wasm-strip
+
+      - name: Run tests
+        run: cargo test-all-ops
+
+      - name: Show results
+        run: echo "All Oracle Program checks passed!"

@@ -174,7 +174,7 @@ fn try_main() -> Result<()> {
         std::env::set_current_dir(path.trim()).with_context(|| "Changing to toplevel")?;
     }
 
-    dotenvy::dotenv()?;
+    dotenvy::dotenv().ok();
 
     let sh = Shell::new()?;
     let cli = Cli::parse();
@@ -227,7 +227,7 @@ fn compile_op(
         "wasm-strip target/wasm32-wasip1/release/{program_name}.wasm"
     )
     .run()?;
-    cmd!(sh, "wasm-opt -Oz --enable-bulk-memory target/wasm32-wasip1/release/{program_name}.wasm -o target/wasm32-wasip1/release/{program_name}.wasm").run()?;
+    cmd!(sh, "wasm-opt -Oz --enable-bulk-memory --enable-sign-ext target/wasm32-wasip1/release/{program_name}.wasm -o target/wasm32-wasip1/release/{program_name}.wasm").run()?;
     Ok(())
 }
 
