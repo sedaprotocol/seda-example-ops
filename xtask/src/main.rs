@@ -15,6 +15,7 @@ struct Cli {
 /// The oracle programs that can be managed.
 #[derive(Clone, ValueEnum)]
 enum OracleProgram {
+    CaplightEodMarketPrice,
     SingleCommodityPrice,
     SingleEquityPrice,
     MultiPriceFeed,
@@ -24,6 +25,7 @@ enum OracleProgram {
 impl OracleProgram {
     fn as_str(&self) -> &str {
         match self {
+            OracleProgram::CaplightEodMarketPrice => "caplight-eod-market-price",
             OracleProgram::SingleCommodityPrice => "single-commodity-price",
             OracleProgram::SingleEquityPrice => "single-equity-price",
             OracleProgram::MultiPriceFeed => "multi-price-feed",
@@ -35,20 +37,24 @@ impl OracleProgram {
 /// The oracle programs that can have a data request posted to a network.
 #[derive(Subcommand)]
 enum PostableOracleProgram {
+    CaplightEodMarketPrice {
+        /// The project ID to fetch prices for.
+        project_id: String,
+    },
     SingleCommodityPrice {
-        #[clap(help = "A singular commodity symbol to fetch prices for (e.g., XAU, BRN, etc.)")]
+        /// A singular commodity symbol to fetch prices for (e.g., XAU, BRN, etc.)
         symbol: String,
     },
     SingleEquityPrice {
-        #[clap(help = "A singular equity symbol to fetch prices for (e.g., AAPL/GOOGL/etc.)")]
+        /// A singular equity symbol to fetch prices for (e.g., AAPL/GOOGL/etc.)
         symbol: String,
     },
     MultiPriceFeed {
-        #[clap(help = "Comma-separated list of symbols to fetch prices for (e.g., BTC,ETH)")]
+        /// A price pair of symbols to fetch prices for (e.g., BTC-USDT, ETH-USD)
         symbols: String,
     },
     SinglePriceFeed {
-        #[clap(help = "Comma-separated list of symbols to fetch prices for (e.g., BTC,ETH)")]
+        /// Comma-separated list of symbols to fetch prices for (e.g., BTC,ETH)
         symbols: String,
     },
 }
@@ -325,6 +331,9 @@ impl PostDataRequest {
         };
 
         match self.oracle_program {
+            PostableOracleProgram::CaplightEodMarketPrice { project_id } => {
+                post_caplight_eod_market_price(cmd, &project_id)
+            }
             PostableOracleProgram::SingleCommodityPrice { symbol } => {
                 post_single_commodity_price(cmd, &symbol)
             }
@@ -339,6 +348,18 @@ impl PostDataRequest {
             }
         }
     }
+}
+
+fn post_caplight_eod_market_price(
+    cmd: Cmd<'_>,
+    symbol: &str,
+) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs")
+        .arg(symbol)
+        .arg("--decode-abi")
+        .arg("uint256")
+        .run()?;
+    Ok(())
 }
 
 fn post_single_commodity_price(

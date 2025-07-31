@@ -6,12 +6,12 @@ import {
   testOracleProgramTally,
 } from '@seda-protocol/dev-tools';
 import {
-  createSuccessfulJsonBigIntReveal as createSuccessfulReveal,
+  createSuccessfulBigIntReveal as createSuccessfulReveal,
   createFailedReveal,
   handleBigIntTallyVmResult as handleVmResult,
 } from './utils.js';
 
-const WASM_PATH = 'target/wasm32-wasip1/release/single-equity-price.wasm';
+const WASM_PATH = 'target/wasm32-wasip1/release/caplight-eod-market-price.wasm';
 
 const fetchMock = mock();
 
@@ -19,7 +19,7 @@ afterEach(() => {
   fetchMock.mockRestore();
 });
 
-describe('single equity price', () => {
+describe('single commodity price', () => {
   it('works with 1 price', async () => {
     const oracleProgram = await file(WASM_PATH).arrayBuffer();
     const vmResult = await testOracleProgramTally(Buffer.from(oracleProgram), Buffer.from('tally-inputs'), [
