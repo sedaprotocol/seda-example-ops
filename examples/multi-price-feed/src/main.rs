@@ -32,7 +32,7 @@ pub fn median(data: &[u128]) -> u128 {
         // safe average of two u128s without overflow
         let a = sorted_data[m / 2 - 1];
         let b = sorted_data[m / 2];
-        (a & b) + ((a ^ b) >> 1)
+        a.midpoint(b)
     } else {
         sorted_data[m / 2]
     }

@@ -68,7 +68,7 @@ fn median_each_asset(data: &[Vec<u128>]) -> Token {
             // safe average of two u128s without overflow
             let a = vals[mid - 1];
             let b = vals[mid];
-            (a & b) + ((a ^ b) >> 1)
+            a.midpoint(b)
         } else {
             vals[mid]
         };
