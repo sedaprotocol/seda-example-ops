@@ -4,6 +4,8 @@ use anyhow::{Context, Result, bail};
 use clap::{Parser, Subcommand, ValueEnum};
 use xshell::{Cmd, Shell, cmd};
 
+mod new_op;
+
 /// A command-line tool for managing  the example SEDA oracle programs.
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -150,6 +152,9 @@ enum Commands {
     },
     /// Install necessary tools for working with SEDA oracle programs.
     InstallTools,
+    /// Create a new oracle program.
+    #[clap(alias = "new-op")]
+    NewOracleProgram(new_op::NewOracleProgram),
     /// Post a data request for a specified oracle program on a network.
     #[clap(alias = "post-dr")]
     PostDataRequest(PostDataRequest),
@@ -206,6 +211,7 @@ fn try_main() -> Result<()> {
             network,
         } => deploy_op(&sh, &network, &oracle_program),
         Commands::InstallTools => install_tools(&sh),
+        Commands::NewOracleProgram(new_op) => new_op.handle(&sh),
         Commands::PostDataRequest(args) => args.post_dr(&sh),
         Commands::TestOracleProgram {
             oracle_program,
