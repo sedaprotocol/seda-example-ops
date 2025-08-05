@@ -17,6 +17,7 @@ This oracle program takes in one argument for execution:
   - GOOG
   - META
   - UNH
+  - VAPE
 
 Executors get the ask price from the DxFeed API behind a data proxy.
 
