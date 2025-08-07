@@ -19,6 +19,7 @@ Make sure the below are installed and in your `PATH`.
 - **WASM**: Install the [`wasm32-wasip1`](https://doc.rust-lang.org/rustc/platform-support/wasm32-wasip1.html) target with `rustup target add wasm32-wasip1` for WASM compilation.
 - **WASM-OPT**: Can be installed via `bun/npm/etc install -g binaryren`, `cargo install binaryren`, `cargo binstall binaryren`, or your OS package manager.
 - **WABT**: Can be installed via `bun/npm/etc install -g wabt`, or your OS package manager.
+- **WASM-STRIP**: Can be install via `cargo install wasm-strip`.
 
 - Alternatively, use the [devcontainer](https://containers.dev/) for a pre-configured environment.
 

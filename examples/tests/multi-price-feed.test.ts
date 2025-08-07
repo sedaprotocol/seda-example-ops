@@ -81,7 +81,9 @@ describe('multi price feed', () => {
             }),
           );
         })
-        .exhaustive();
+        .otherwise(() => {
+          throw new Error(`Unexpected host: ${url.host}`);
+        });
     });
 
     const oracleProgram = await file(WASM_PATH).arrayBuffer();
