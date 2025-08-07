@@ -20,6 +20,7 @@ enum OracleProgram {
     SingleEquityPrice,
     MultiPriceFeed,
     SinglePriceFeed,
+    EvmPriceFeed,
 }
 
 impl OracleProgram {
@@ -30,6 +31,7 @@ impl OracleProgram {
             OracleProgram::SingleEquityPrice => "single-equity-price",
             OracleProgram::MultiPriceFeed => "multi-price-feed",
             OracleProgram::SinglePriceFeed => "single-price-feed",
+            OracleProgram::EvmPriceFeed => "evm-price-feed",
         }
     }
 }
@@ -55,6 +57,10 @@ enum PostableOracleProgram {
     },
     SinglePriceFeed {
         /// Comma-separated list of symbols to fetch prices for (e.g., BTC,ETH)
+        symbols: String,
+    },
+    EvmPriceFeed {
+        /// A list of price pair of symbols to fetch prices for (e.g., BTC-USDT, ETH-USD)
         symbols: String,
     },
 }
@@ -346,6 +352,7 @@ impl PostDataRequest {
             PostableOracleProgram::SinglePriceFeed { symbols } => {
                 post_single_price_feed(cmd, &symbols)
             }
+            PostableOracleProgram::EvmPriceFeed { symbols } => post_evm_price_feed(cmd, &symbols),
         }
     }
 }
@@ -399,6 +406,18 @@ fn post_multi_price_feed(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(),
         .arg(symbols)
         .arg("--decode-abi")
         .arg("uint256")
+        .run()?;
+    Ok(())
+}
+
+/// Post a evm price feed data request with the specified symbols.
+fn post_evm_price_feed(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs")
+        .arg(symbols)
+        .arg("--decode-abi")
+        .arg("uint256[]")
+        .arg("--encode-exec-inputs")
+        .arg("string[]")
         .run()?;
     Ok(())
 }
