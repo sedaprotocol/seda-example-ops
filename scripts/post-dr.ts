@@ -30,6 +30,7 @@ async function main() {
     .option('--gas-price <price>', 'Gas price for the transaction')
     .option('--exec-gas-limit <limit>', 'Execution gas limit for the data request')
     .option('--tally-gas-limit <limit>', 'Tally gas limit for the data request')
+    .option('--encode-exec-inputs <type>', 'ABI encode exec-inputs with the specified type (e.g., "string[]")')
     .parse(process.argv);
 
   const options = cli.opts();
@@ -42,12 +43,39 @@ async function main() {
 
   console.log('Posting and waiting for a result, this may take a little while..');
 
+  // Handle ABI encoding of exec-inputs if specified
+  let execInputs: Buffer;
+  if (options.encodeExecInputs) {
+    try {
+      const coder = AbiCoder.defaultAbiCoder();
+      // Parse the input as JSON if it looks like JSON, otherwise treat as string
+      let parsedInput: any;
+      try {
+        parsedInput = JSON.parse(options.execInputs);
+      } catch {
+        // If not valid JSON, treat as a single string
+        parsedInput = options.execInputs;
+      }
+
+      const encoded = coder.encode([options.encodeExecInputs], [parsedInput]);
+      // Remove '0x' prefix and convert to Buffer
+      execInputs = Buffer.from(encoded.slice(2), 'hex');
+      console.log(`ABI encoded exec-inputs with type "${options.encodeExecInputs}": ${encoded}`);
+    } catch (error) {
+      console.error('Failed to ABI encode exec-inputs:', error);
+      process.exit(1);
+    }
+  } else {
+    // Backwards compatibility: treat as raw bytes
+    execInputs = Buffer.from(options.execInputs);
+  }
+
   const dataRequestInput: PostDataRequestInput = {
     consensusOptions: {
       method: 'none',
     },
     execProgramId: options.oracleProgramId,
-    execInputs: Buffer.from(options.execInputs),
+    execInputs,
     tallyInputs: Buffer.from(options.tallyInputs),
     memo: Buffer.from(options.memo),
     replicationFactor: parseInt(options.replicationFactor, 10),
