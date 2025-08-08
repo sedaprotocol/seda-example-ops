@@ -1,5 +1,6 @@
 use core::fmt;
 
+use convert_case::Casing;
 use inquire::{Select, Text, validator::Validation};
 use xshell::{Shell, cmd};
 
@@ -18,13 +19,13 @@ impl fmt::Display for Language {
     }
 }
 
-impl Language {
-    pub fn select() -> Self {
-        Select::new("Select a programming language:", vec![Language::Rust])
-            .prompt()
-            .unwrap_or(Language::Rust)
-    }
-}
+// impl Language {
+//     pub fn select() -> Self {
+//         Select::new("Select a programming language:", vec![Language::Rust])
+//             .prompt()
+//             .unwrap_or(Language::Rust)
+//     }
+// }
 
 pub enum Template {
     Empty,
@@ -106,6 +107,51 @@ impl DataHandler {
         .prompt()
         .unwrap_or(DataHandler::Empty)
     }
+
+    pub fn template(self) -> &'static str {
+        match self {
+            DataHandler::Empty => "",
+            DataHandler::Average => {
+                r#"
+fn average(data: &[u128]) -> u128 {
+    let m = data.len();
+
+    if m == 0 {
+        Process::error("No valid data available for average calculation".as_bytes());
+    }
+
+    let sum: u128 = data.iter().sum();
+    sum / m as u128
+}
+"#
+            }
+            DataHandler::Median => {
+                r#"
+fn median(data: &[u128]) -> u128 {
+    let m = data.len();
+
+    if m == 0 {
+        Process::error("No valid data available for median calculation".as_bytes());
+    }
+
+    let mut sorted_data = data.to_vec();
+    sorted_data.sort_unstable();
+
+    let median_price = if m % 2 == 0 {
+        // safe average of two u128s without overflow
+        let a = sorted_data[m / 2 - 1];
+        let b = sorted_data[m / 2];
+        a.midpoint(b)
+    } else {
+        sorted_data[m / 2]
+    };
+
+    median_price
+}
+"#
+            }
+        }
+    }
 }
 
 pub enum Encoding {
@@ -153,7 +199,10 @@ pub fn is_valid_pkg_name(project_name: &str) -> bool {
         && !chars.any(|ch| !(ch.is_alphanumeric() || ch == '-' || ch == '_') || ch.is_uppercase())
 }
 
-const MAIN_TEMPLATE: &str = r#"
+fn make_main(name: &str) -> String {
+    let pascal = name.to_case(convert_case::Case::Pascal);
+    format!(
+        r#"
 use execution_phase::execution_phase;
 use seda_sdk_rs::oracle_program;
 use tally_phase::tally_phase;
@@ -162,15 +211,17 @@ mod execution_phase;
 mod tally_phase;
 
 #[oracle_program]
-impl NewOracleProgram {
-    fn execute() {
+impl {pascal} {{
+    fn execute() {{
         execution_phase().unwrap();
-    }
+    }}
 
-    fn tally() {
+    fn tally() {{
         tally_phase().unwrap();
-    }
-}"#;
+    }}
+}}"#,
+    )
+}
 
 impl NewOracleProgram {
     pub fn handle(self, shell: &Shell) -> anyhow::Result<()> {
@@ -198,7 +249,9 @@ impl NewOracleProgram {
                 .replace(['.', '\\', '/'], "")
         };
 
-        let language = Language::select();
+        // we only have rust for now.
+        // let language = Language::select();
+        let language = Language::Rust;
         let template = Template::select();
         let _data_handler = DataHandler::select();
         let encoding = Encoding::select();
@@ -212,7 +265,7 @@ impl NewOracleProgram {
                 cmd!(shell, "cargo add anyhow seda-sdk-rs").run()?;
                 template.add_template_deps(shell)?;
                 encoding.add_encoding_deps(shell)?;
-                shell.write_file("src/main.rs", MAIN_TEMPLATE)?;
+                shell.write_file("src/main.rs", make_main(&project_name))?;
                 cmd!(shell, "cargo fmt --all").run()?;
                 println!("New oracle program created successfully.");
             }
