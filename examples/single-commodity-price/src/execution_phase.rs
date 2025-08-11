@@ -38,8 +38,9 @@ pub fn execution_phase() -> Result<()> {
 //   "status": "OK"
 // }
 
+/// The response structure for commodity price requests.
 #[derive(serde::Deserialize)]
-struct EquityPriceResponse {
+struct CommodityPriceResponse {
     #[serde(rename = "Quote")]
     quote: serde_json::value::Map<String, serde_json::value::Value>,
 }
@@ -49,13 +50,12 @@ pub fn execution_phase() -> Result<()> {
     #[cfg(feature = "mainnet")]
     unimplemented!("Mainnet execution phase is not yet implemented");
 
-    // Retrieve the input parameters for the data request (DR).
     // Expected to be in the format "symbol,..." (e.g., "XAU" or "BRN").
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
 
+    // If no input is provided, log an error and return.
     if dr_inputs_raw.is_empty() {
-        // If no input is provided, log an error and return.
-        elog!("No input provided for the equity price request.");
+        elog!("No input provided for the commodity price request.");
         Process::error("No input provided".as_bytes());
         return Ok(());
     }
@@ -63,26 +63,23 @@ pub fn execution_phase() -> Result<()> {
     // Log the asset being fetched as part of the Execution Standard Out.
     log!("Fetching price for: {dr_inputs_raw}");
 
+    // Get the price in USD
     let url = [API_URL, &dr_inputs_raw, "/USD"].concat();
     let response = proxy_http_fetch(url, Some(PROXY_PUBLIC_KEY.to_string()), None);
 
-    // Check if the HTTP request was successfully fulfilled.
+    // Handle the case where the HTTP request failed or was rejected.
     if !response.is_ok() {
-        // Handle the case where the HTTP request failed or was rejected.
         elog!(
             "HTTP Response was rejected: {} - {}",
             response.status,
             String::from_utf8(response.bytes)?
         );
-
-        // Report the failure to the SEDA network with an error code of 1.
-        Process::error("Error while fetching equity price".as_bytes());
-
+        Process::error("Error while fetching commodity price".as_bytes());
         return Ok(());
     }
 
     // Parse the API response as defined earlier.
-    let response_data = serde_json::from_slice::<EquityPriceResponse>(&response.bytes)?;
+    let response_data = serde_json::from_slice::<CommodityPriceResponse>(&response.bytes)?;
 
     let price = response_data
         .quote
@@ -93,10 +90,8 @@ pub fn execution_phase() -> Result<()> {
     let price_lossless = (price * 100.0) as u128;
     log!("Fetched price: {price_lossless:?}");
 
-    let result = serde_json::to_vec(&price_lossless.to_le_bytes())?;
-
     // Report the successful result back to the SEDA network.
-    Process::success(&result);
+    Process::success(&price_lossless.to_le_bytes());
 
     Ok(())
 }

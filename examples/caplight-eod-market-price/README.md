@@ -6,7 +6,7 @@ Deployments:
 
 ## Overview
 
-This Oracle Program fetches the latest market data returned from the [Caplight API](https://platform.caplight.com/api/documentation.html#tag/MarketPrice/paths/~1market-price-history/get), and returns them in a format compatible with EVM smart contracts. It takes a singular ID of a company and then calculates the median among those. The API is behind a Data Proxy.
+This Oracle Program fetches the latest market data returned from the [Caplight API](https://platform.caplight.com/api/documentation.html#tag/MarketPrice/paths/~1market-price-history/get), and returns the price in a format compatible with EVM smart contracts. It takes a singular ID of a company and then calculates the median among those. The API is behind a Data Proxy.
 
 You can test this Oracle Program on testnet with the following command:
 
@@ -52,9 +52,9 @@ The result is ABI-encoded as `uint256` where the final number is the median of a
 ### Example
 
 If execution phase ran with a replication factor of 2 and the prices were:
-
 - 4096
 - 5000
+
 The tally phase would return `4098` ABI-encoded as a `uint256`.
 
 ## Supported Data
