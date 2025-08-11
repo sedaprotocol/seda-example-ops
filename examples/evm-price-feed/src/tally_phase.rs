@@ -32,17 +32,10 @@ pub fn tally_phase() -> Result<()> {
 
     // If there are valid prices revealed, calculate the median price from price reports.
     let final_prices = median_each_asset(&revealed_prices)?;
-    log!("Final median prices: {:?}", final_prices);
+    log!("Final median prices: {final_prices:?}",);
 
-    let encoded_result = ethabi::encode(&[Token::Array(
-        final_prices
-            .into_iter()
-            .map(|p| Token::Uint(U256::from(p)))
-            .collect(),
-    )]);
-
-    // Report the successful result in the tally phase, encoding the result as bytes.
-    // Encoding result with big endian to decode from EVM contracts.
+    // Encode final prices as ABI-encoded bytes for EVM contract use
+    let encoded_result = ethabi::encode(&[Token::Array(final_prices)]);
     Process::success(&encoded_result);
 
     Ok(())
@@ -60,7 +53,7 @@ fn median_sorted(vals: &[u128]) -> u128 {
 
 /// Finds the median of a list of prices per price report.
 /// Returns an error if the data is inconsistent or empty.
-fn median_each_asset(data: &[Vec<u128>]) -> Result<Vec<u128>> {
+fn median_each_asset(data: &[Vec<u128>]) -> Result<Vec<Token>> {
     if data.is_empty() {
         return Err(anyhow::anyhow!("No data provided for median calculation"));
     }
@@ -84,5 +77,6 @@ fn median_each_asset(data: &[Vec<u128>]) -> Result<Vec<u128>> {
             vals.sort();
             median_sorted(&vals)
         })
+        .map(|p| Token::Uint(U256::from(p)))
         .collect())
 }

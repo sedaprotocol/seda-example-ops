@@ -11,14 +11,17 @@ pub fn execution_phase() -> Result<()> {
         &Process::get_inputs(),
     );
 
-    if dr_inputs.is_err() || dr_inputs.as_ref().unwrap().is_empty() {
-        elog!("Invalid or missing input for price feed request.");
-        Process::error("Invalid input: missing or failed to decode".as_bytes());
-        return Ok(());
-    }
+    // Check if the input is valid and not empty.
+    let dr_inputs = match dr_inputs {
+        Ok(v) if !v.is_empty() => v,
+        _ => {
+            elog!("Invalid or missing input for price feed request.");
+            Process::error("Invalid input: missing or failed to decode".as_bytes());
+            return Ok(());
+        }
+    };
 
     // Extract the inner array from the decoded result
-    let dr_inputs = dr_inputs.unwrap();
     let dr_inputs = match &dr_inputs[0] {
         ethabi::Token::Array(tokens) => tokens,
         _ => {
@@ -28,40 +31,32 @@ pub fn execution_phase() -> Result<()> {
         }
     };
 
-    // Parse multiple symbol pairs
-    let mut price_pairs: Vec<(String, String)> = Vec::with_capacity(dr_inputs.len());
-    for pair in dr_inputs {
-        let pair_str = match pair {
-            ethabi::Token::String(s) => s.clone(),
+    // One-pass: validate pair and fetch immediately; exit on first error
+    let mut prices = Vec::new();
+    for token in dr_inputs {
+        let pair = match token {
+            ethabi::Token::String(s) => s,
             _ => {
-                elog!("Expected string token, got: {:?}", pair);
+                elog!("Expected string token, got: {:?}", token);
                 Process::error("Invalid token type".as_bytes());
                 return Ok(());
             }
         };
 
-        let parts: Vec<&str> = pair_str.split('-').collect();
-        if parts.len() == 2 {
-            price_pairs.push((parts[0].to_string(), parts[1].to_string()));
-        } else {
-            elog!("Invalid symbol pair format: {pair_str}. Expected format: symbolA-symbolB");
-            Process::error(format!("Invalid symbol pair format: {pair_str}").as_bytes());
+        let parts: Vec<_> = pair.split('-').collect();
+        if parts.len() != 2 {
+            elog!("Invalid symbol pair format: {pair}. Expected format: symbolA-symbolB");
+            Process::error(format!("Invalid symbol pair format: {pair}").as_bytes());
             return Ok(());
         }
-    }
 
-    let mut prices = Vec::with_capacity(price_pairs.len());
-    for (base_symbol, quote_symbol) in &price_pairs {
-        match crate::feeds::binance::fetch_token_price(base_symbol, quote_symbol, 6) {
-            Ok(price) => {
-                log!("Got price for {}-{}: {}", base_symbol, quote_symbol, price);
-                prices.push(price);
-            }
+        match crate::feeds::binance::fetch_token_price(parts[0], parts[1], 6) {
+            Ok(price) => prices.push(price),
             Err(error) => {
                 elog!(
                     "Failed to fetch price for {}-{}: {}",
-                    base_symbol,
-                    quote_symbol,
+                    parts[0],
+                    parts[1],
                     error
                 );
                 Process::error("Failed to fetch prices".as_bytes());
@@ -70,6 +65,7 @@ pub fn execution_phase() -> Result<()> {
         }
     }
 
+    // Report the successful result back to the SEDA network
     log!("Successfully fetched {} prices: {:?}", prices.len(), prices);
     let result = serde_json::to_vec(&prices)?;
     Process::success(&result);
