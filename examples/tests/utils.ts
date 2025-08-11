@@ -100,3 +100,19 @@ export function handleBigIntTallyVmResult(vmResult: VmResult, exitCode: number, 
 export function handleBigIntArrayTallyVmResult(vmResult: VmResult, exitCode: number, expected: bigint[]) {
   genericHandleTallyVmResult(vmResult, exitCode, expected, 'uint256[]');
 }
+
+export function handleJsonBigIntArrayExecutionVmResult(vmResult: VmResult, exitCode: number, expected: bigint[]) {
+  genericHandleTallyVmResult(vmResult, exitCode, expected);
+  
+  // Parse JSON array of bigint strings
+  const jsonString = Buffer.from(vmResult.result).toString('utf-8');
+  expect(jsonString).toBeDefined();
+  expect(jsonString.length).toBeGreaterThan(0);
+  
+  const jsonArray = JSON.parse(jsonString);
+  expect(Array.isArray(jsonArray)).toBe(true);
+  
+  // Convert each string to bigint and compare
+  const values = jsonArray.map((v: string) => BigInt(v));
+  expect(values).toEqual(expected);
+}
