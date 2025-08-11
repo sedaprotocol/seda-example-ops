@@ -2,23 +2,14 @@ use anyhow::Result;
 use ethabi::{Token, ethereum_types::U256};
 use seda_sdk_rs::{Process, elog, get_reveals, log};
 
-/**
- * Executes the tally phase within the SEDA network.
- * This phase aggregates the results (e.g., price data) revealed during the execution phase,
- * calculates the median value, and submits it as the final result.
- * Note: The number of reveals depends on the replication factor set in the data request parameters.
- */
 pub fn tally_phase() -> Result<()> {
-    // Tally inputs can be retrieved from Process.getInputs(), though it is unused in this example.
-    // let tally_inputs = Process::get_inputs();
-
     // Retrieve consensus reveals from the tally phase.
     let reveals = get_reveals()?;
     let mut revealed_prices: Vec<u128> = Vec::with_capacity(reveals.len());
 
     // Iterate over each reveal, parse its content as an unsigned integer (u128), and store it in the prices array.
     for reveal in reveals {
-        let price = match serde_json::from_slice::<[u8; 16]>(&reveal.body.reveal) {
+        let price = match reveal.body.reveal.as_slice().try_into() {
             Ok(price) => u128::from_le_bytes(price),
             Err(err) => {
                 elog!("Failed to parse revealed prices: {err}");
@@ -29,8 +20,8 @@ pub fn tally_phase() -> Result<()> {
         revealed_prices.push(price);
     }
 
+    // If no valid prices were revealed, report an error indicating no consensus.
     if revealed_prices.is_empty() {
-        // If no valid prices were revealed, report an error indicating no consensus.
         Process::error("No consensus among revealed results".as_bytes());
         return Ok(());
     }
@@ -41,8 +32,7 @@ pub fn tally_phase() -> Result<()> {
 
     let result = ethabi::encode(&[final_prices]);
 
-    // Report the successful result in the tally phase, encoding the result as bytes.
-    // Encoding result with big endian to decode from EVM contracts.
+    // Report the successful result in the tally phase.
     Process::success(&result);
 
     Ok(())

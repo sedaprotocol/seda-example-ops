@@ -6,7 +6,7 @@ mod execution_phase;
 mod tally_phase;
 
 #[oracle_program]
-impl CommodityPrice {
+impl SingleCommodityPrice {
     fn execute() {
         execution_phase().unwrap();
     }

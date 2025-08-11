@@ -20,8 +20,8 @@ pub fn tally_phase() -> Result<()> {
         revealed_prices.push(price);
     }
 
+    // If no valid prices were revealed, report an error indicating no consensus.
     if revealed_prices.is_empty() {
-        // If no valid prices were revealed, report an error indicating no consensus.
         Process::error("No consensus among revealed results".as_bytes());
         return Ok(());
     }
@@ -32,8 +32,7 @@ pub fn tally_phase() -> Result<()> {
 
     let result = ethabi::encode(&[final_prices]);
 
-    // Report the successful result in the tally phase, encoding the result as bytes.
-    // Encoding result with big endian to decode from EVM contracts.
+    // Report the successful result in the tally phase.
     Process::success(&result);
 
     Ok(())

@@ -53,10 +53,10 @@ The result is ABI-encoded as `uint256` where the final number is the median of a
 ### Example
 
 If execution phase ran with a replication factor of 2 and the prices were:
-- 4096
-- 5000
+- 100
+- 200
 
-The tally phase would return `4098` ABI-encoded as a `uint256`.
+The tally phase would return `250` ABI-encoded as a `uint256`.
 
 ## Supported Data
 
