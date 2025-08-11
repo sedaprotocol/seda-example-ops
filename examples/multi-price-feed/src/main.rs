@@ -7,7 +7,7 @@ mod feeds;
 mod tally_phase;
 
 #[oracle_program]
-impl PriceFeed {
+impl MultiPriceFeed {
     fn execute() {
         execution_phase().unwrap();
     }

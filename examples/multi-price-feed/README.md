@@ -1,20 +1,63 @@
 # Multi Price Feed
 
 Deployments:
-- [Testnet]()
+- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/e757d7b624d2bda11ab7f7916329c4a2762c11dc484d2eb861356e5fe5376924)
 <!-- - [Mainnet]() -->
 
+## Overview
+
+This Oracle Program fetches the latest price pair data from several APIs(binance, mexc, okx) and takes the median of them posting the result in a format compatible with EVM smart contracts.
+
+You can test this Oracle Program with the following command:
+
+```sh
+cargo post-dr multi-price-feed BTC-USD -i e757d7b624d2bda11ab7f7916329c4a2762c11dc484d2eb861356e5fe5376924 -r 3
+```
+
 ## Execution Phase:
+
+### Input Format
 
 This oracle program takes in one argument for execution:
 - A price pair hyphenated symbols i.e. `BTC-USD,ETH-USDT,etc...`
 
-Each executor hits three public APIs: binance, mexc, and okx.
+### Process
+
+1. Get and validates the input is in the correct format.
+1. Makes HTTP calls to the three different APIs, converting their prices to `u128`s with 6 decimal precision.
+1. Takes the median of those three prices.
+1. Returns the `u128` in little endian format.
+
+### Example
+
+Input: `BTC-USD`
+Output: `120334000128`
 
 ## Tally Phase
 
-It takes no arguments for the tally phase.
+### Input
 
-The tally phase takes the reveals.
-It then takes the median price, before ABI encoding the result, as a `uint256`, and posting it.
-This way the result can handily be decoded by an ETH network.
+No additional input required - uses the reveals from the Execution Phase.
+
+### Process
+
+1. Collects all price reveals from oracle nodes.
+1. Calculates the median price from all the given prices.
+1. ABI-encodes the result as a `uint256` for EVM compatibility.
+1. Posts the final result.
+
+### Output Format
+
+The result is ABI-encoded as `uint256` where the final number is the median of all the collected price data.
+
+### Example
+
+If execution phase ran with a replication factor of 2 and the prices were:
+
+- 4096
+- 5000
+The tally phase would return `4098` ABI-encoded as a `uint256`.
+
+## Supported Data
+
+Supports any company available on the Binance, Mexc, and Okx APIs.
