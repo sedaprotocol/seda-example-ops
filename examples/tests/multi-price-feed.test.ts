@@ -4,9 +4,9 @@ import { afterEach, describe, it, mock } from 'bun:test';
 import { testOracleProgramExecution, testOracleProgramTally } from '@seda-protocol/dev-tools';
 import { match } from 'ts-pattern';
 import {
-  createSuccessfulJsonBigIntReveal as createSuccessfulReveal,
+  createSuccessfulBigIntReveal as createSuccessfulReveal,
   createFailedReveal,
-  handleJsonBigIntExecutionVmResult as handleExecutionVmResult,
+  handleBigIntExecutionVmResult as handleExecutionVmResult,
   handleBigIntTallyVmResult as handleTallyVmResult,
 } from './utils.js';
 

@@ -6,7 +6,7 @@ import {
   testOracleProgramTally,
 } from '@seda-protocol/dev-tools';
 import {
-  createSuccessfulJsonBigIntReveal as createSuccessfulReveal,
+  createSuccessfulBigIntReveal as createSuccessfulReveal,
   createFailedReveal,
   handleBigIntTallyVmResult as handleVmResult,
 } from './utils.js';
