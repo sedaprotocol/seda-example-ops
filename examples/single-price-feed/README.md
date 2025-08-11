@@ -4,19 +4,60 @@ Deployments:
 - [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/ea3860e9f537eed6b4ac4ee1c97dea0fd1b7e33a29afaa846ad29671ddaa194e)
 - [Mainnet](https://mainnet.explorer.seda.xyz/oracle-programs/ae31c9c4026d259cabab6df4e012f4837175fa27572c49e313337516f971772a)
 
+iew
+
+This Oracle Program gets the price of specified crypto assets in USD by leveraging the Coingecko API, and returns the price in a format compatible with EVM smart contracts. The API is behind a Data Proxy.
+
+You can test this Oracle Program on testnet with the following command:
+
+```sh
+cargo post-dr single-price-feed BTC,ETH -i ea3860e9f537eed6b4ac4ee1c97dea0fd1b7e33a29afaa846ad29671ddaa194e
+```
+
 ## Execution Phase:
 
-This oracle program takes in one argument for execution:
-- A comma separated list of symbols i.e. `BTC,ETH,etc...`
+### Input format
 
-Each executor hits the coingecko API, configured by a data proxy.
-Returning the list of prices in USD in the order the symbols were entered.
+The Execution Phase expects a comma separated list of crypto symbols i.e. `BTC,ETH,etc...`
+
+### Process
+
+1. Get the input.
+1. Makes a HTTP call to the DxFeed Data Proxy.
+1. Converts the decimal to a `u128` with 6 decimal precision.
+1. Returns the prices as a JSON array preserving the order the symbols were given in.
+
+### Example
+
+Input: `"BTC,ETH"`
+
+Output: `[119792000000, 4300910000]` (prices in 6 decimal precision)
 
 ## Tally Phase
 
-It takes no arguments for the tally phase.
+### Input
 
-The tally phase takes the reveals.
-It then takes the median of each symbol, before ABI encoding the result, as a `uint256[]`, and posting it. This way the result can handily be decoded by an ETH network. This also keeps the same order as the symbols passed to the execution arguments.
+No additional input required - uses the reveals from the Execution Phase.
 
-For example, if you asked for the `BTC,ETH` your result would be `[median_of_BTC, median_of_ETH]` ABI encoded as a `uint256[]`.
+### Process
+
+1. Collects all price reveals from oracle nodes.
+1. Calculates the median price from all the given prices for each crypto symbol individually.
+1. ABI-encodes the result as a `uint256` for EVM compatibility.
+1. Posts the final result returning the same order of symbols given in the Execution Phase.
+
+### Output Format
+
+The result is ABI-encoded as `uint256` where the final number is the median of all the collected price data.
+
+### Example
+
+If execution phase ran with a replication factor of 2 and the prices were:
+- [100, 200]
+- [200, 400]
+
+The tally phase would return `[150, 300]` ABI-encoded as a `uint256[]`.
+
+## Supported Data
+
+Any crypto symbol supported by the CoinGecko API.

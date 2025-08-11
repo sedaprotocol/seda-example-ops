@@ -30,6 +30,13 @@ The Execution Phase expects a commodity symbol, see [below](#supported-data) for
 1. Converts the decimal to a `u128` with 2 decimal precision.
 1. Returns the `u128` in little endian format.
 
+### Example
+
+Input: `VAPE`
+
+Output: `5500`
+
+
 ## Tally Phase
 
 ### Input
@@ -53,7 +60,7 @@ If execution phase ran with a replication factor of 2 and the prices were:
 - 100
 - 200
 
-The tally phase would return `250` ABI-encoded as a `uint256`.
+The tally phase would return `150` ABI-encoded as a `uint256`.
 
 ## Supported Data
 

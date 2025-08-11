@@ -30,9 +30,8 @@ pub fn tally_phase() -> Result<()> {
     let final_prices = median(&revealed_prices);
     log!("Final median prices: {final_prices:?}");
 
-    let result = ethabi::encode(&[final_prices]);
-
     // Report the successful result in the tally phase.
+    let result = ethabi::encode(&[final_prices]);
     Process::success(&result);
 
     Ok(())

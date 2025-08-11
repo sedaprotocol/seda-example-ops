@@ -30,7 +30,8 @@ The Execution Phase expects the `pitchbookId` of the company.
 ### Example
 
 Input: `54782-29`
-Output: `4069`
+
+Output: `4221`
 
 ## Tally Phase
 
@@ -55,7 +56,7 @@ If execution phase ran with a replication factor of 2 and the prices were:
 - 100
 - 200
 
-The tally phase would return `250` ABI-encoded as a `uint256`.
+The tally phase would return `150` ABI-encoded as a `uint256`.
 
 ## Supported Data
 

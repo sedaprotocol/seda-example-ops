@@ -32,7 +32,6 @@ pub fn tally_phase() -> Result<()> {
 
     // Encode the final median price as a EVM `uint256`.
     let result = ethabi::encode(&[final_prices]);
-
     // Report the successful result in the tally phase.
     Process::success(&result);
 

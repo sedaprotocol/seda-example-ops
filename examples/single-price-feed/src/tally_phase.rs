@@ -2,16 +2,7 @@ use anyhow::Result;
 use ethabi::{Token, ethereum_types::U256};
 use seda_sdk_rs::{Process, elog, get_reveals, log};
 
-/**
- * Executes the tally phase within the SEDA network.
- * This phase aggregates the results (e.g., price data) revealed during the execution phase,
- * calculates the median value, and submits it as the final result.
- * Note: The number of reveals depends on the replication factor set in the data request parameters.
- */
 pub fn tally_phase() -> Result<()> {
-    // Tally inputs can be retrieved from Process.getInputs(), though it is unused in this example.
-    // let tally_inputs = Process::get_inputs();
-
     // Retrieve consensus reveals from the tally phase.
     let reveals = get_reveals()?;
     let mut revealed_prices: Vec<Vec<u128>> = Vec::with_capacity(reveals.len());
@@ -39,10 +30,9 @@ pub fn tally_phase() -> Result<()> {
     let final_prices = median_each_asset(&revealed_prices);
     log!("Final median prices: {final_prices:?}");
 
+    // Encode the final median price as a EVM `uint256[]`.
     let result = ethabi::encode(&[final_prices]);
-
-    // Report the successful result in the tally phase, encoding the result as bytes.
-    // Encoding result with big endian to decode from EVM contracts.
+    // Report the successful result in the tally phase.
     Process::success(&result);
 
     Ok(())

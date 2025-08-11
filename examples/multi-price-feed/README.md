@@ -56,7 +56,7 @@ If execution phase ran with a replication factor of 2 and the prices were:
 - 100
 - 200
 
-The tally phase would return `250` ABI-encoded as a `uint256`.
+The tally phase would return `150` ABI-encoded as a `uint256`.
 
 ## Supported Data
 

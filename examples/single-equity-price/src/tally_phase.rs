@@ -28,10 +28,10 @@ pub fn tally_phase() -> Result<()> {
 
     // If there are valid prices revealed, calculate the median price from price reports.
     let final_prices = median(&revealed_prices);
+
     log!("Final median prices: {final_prices:?}");
-
+    // Encode the final median price as a EVM `uint256`.
     let result = ethabi::encode(&[final_prices]);
-
     // Report the successful result in the tally phase.
     Process::success(&result);
 

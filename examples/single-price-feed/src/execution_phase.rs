@@ -20,12 +20,11 @@ pub fn execution_phase() -> Result<()> {
 
 #[cfg(any(feature = "testnet", feature = "mainnet"))]
 pub fn execution_phase() -> Result<()> {
-    // Retrieve the input parameters for the data request (DR).
     // Expected to be in the format "symbolA,SymbolB,..." (e.g., "BTC,ETH").
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
 
+    // If no input is provided, log an error and return.
     if dr_inputs_raw.is_empty() {
-        // If no input is provided, log an error and return.
         elog!("No input provided for the price feed request.");
         Process::error("No input provided".as_bytes());
         return Ok(());
@@ -37,18 +36,14 @@ pub fn execution_phase() -> Result<()> {
     let url = [API_URL, &dr_inputs_raw].concat();
     let response = proxy_http_fetch(url, Some(PROXY_PUBLIC_KEY.to_string()), None);
 
-    // Check if the HTTP request was successfully fulfilled.
+    // Handle the case where the HTTP request failed or was rejected.
     if !response.is_ok() {
-        // Handle the case where the HTTP request failed or was rejected.
         elog!(
             "HTTP Response was rejected: {} - {}",
             response.status,
             String::from_utf8(response.bytes)?
         );
-
-        // Report the failure to the SEDA network with an error code of 1.
         Process::error("Error while fetching symbol prices".as_bytes());
-
         return Ok(());
     }
 
@@ -57,17 +52,15 @@ pub fn execution_phase() -> Result<()> {
         serde_json::value::Map<String, serde_json::value::Value>,
     >(&response.bytes)?;
 
-    let mut prices = Vec::with_capacity(response_data.len());
     // Extract the prices for each symbol from the response data.
+    let mut prices = Vec::with_capacity(response_data.len());
     response_data.values().for_each(|price| {
-        prices.push((price["usd"].as_f64().unwrap_or_default() * 1000000f64) as u128)
+        prices.push((price["usd"].as_f64().unwrap_or_default() * 1_000_000f64) as u128)
     });
-
     log!("Fetched prices: {prices:?}");
 
-    let result = serde_json::to_vec(&prices)?;
-
     // Report the successful result back to the SEDA network.
+    let result = serde_json::to_vec(&prices)?;
     Process::success(&result);
 
     Ok(())
