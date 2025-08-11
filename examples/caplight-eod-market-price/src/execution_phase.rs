@@ -39,12 +39,11 @@ pub fn execution_phase() -> Result<()> {
     #[cfg(feature = "mainnet")]
     unimplemented!("Mainnet execution phase is not yet implemented");
 
-    // Retrieve the input parameters for the data request (DR).
-    // Expected to be in the format "symbol,..." (e.g., "XAU" or "BRN").
+    // Expected to be a valid project Id for the Caplight API.
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
 
+    // If no input is provided, log an error and return.
     if dr_inputs_raw.is_empty() {
-        // If no input is provided, log an error and return.
         elog!("No input provided for the equity price request.");
         Process::error("No input provided".as_bytes());
         return Ok(());
@@ -65,18 +64,14 @@ pub fn execution_phase() -> Result<()> {
         }),
     );
 
-    // Check if the HTTP request was successfully fulfilled.
+    // Check if the HTTP request was successfully fulfilled or not.
     if !response.is_ok() {
-        // Handle the case where the HTTP request failed or was rejected.
         elog!(
             "HTTP Response was rejected: {} - {}",
             response.status,
             String::from_utf8(response.bytes)?
         );
-
-        // Report the failure to the SEDA network with an error code of 1.
         Process::error("Error while fetching equity price".as_bytes());
-
         return Ok(());
     }
 
