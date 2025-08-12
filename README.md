@@ -19,15 +19,13 @@ In a quick overview:
 
 We have the following examples, where you can learn how to quickly post a Data Request specifically for that example by clicking the links, however please check out the [requirements](#requirements) before posting a Data Request with the examples:
 
-- [Caplight Eod Market Price](./examples/caplight-eod-market-price/README.md#overview): A way to ask for the market price history for a company leveraging the Caplight API behind a data proxy.
-- [Single Commodity Price](./examples/single-commodity-price/README.md#overview): A way to get the price of a commodity using the DxFeed API behind a Data Proxy.
+- [Caplight Eod Market Price](./examples/caplight-eod-market-price/README.md#overview)
+- [Single Commodity Price](./examples/single-commodity-price/README.md#overview)
 - [Single Equity Price](./examples/single-commodity-price/README.md#overview)
 - [Multi Price Feed](./examples/multi-price-feed/README.md#overview)
 - [Single Price Feed](./examples/single-price-feed/README.md#overview)
 - [Evm Price Feed](./examples/evm-price-feed/README.md#overview)
 - [Us Rates](./examples/us-rates/README.md#overview)
-
-If you'd like to learn more about how they work
 
 ## Requirements
 
