@@ -11,7 +11,7 @@ import {
   handleBigIntArrayTallyVmResult as handleVmResult,
 } from './utils.js';
 
-const WASM_PATH = 'target/wasm32-wasip1/release/single-price-feed.wasm';
+const WASM_PATH = 'target/wasm32-wasip1/release/us-rates.wasm';
 
 const fetchMock = mock();
 

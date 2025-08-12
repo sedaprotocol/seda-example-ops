@@ -19,11 +19,13 @@ In a quick overview:
 
 We have the following examples, where you can learn how to quickly post a Data Request specifically for that example by clicking the links, however please check out the [requirements](#requirements) before posting a Data Request with the examples:
 
-- [Caplight Eod Market Price](./examples/caplight-eod-market-price/README.md): A way to ask for the market price history for a company leveraging the Caplight API behind a data proxy.
-- [Single Commodity Price](./examples/single-commodity-price/README.md): A way to get the price of a commodity using the DxFeed API behind a Data Proxy.
-- [Single Equity Price](./examples/single-commodity-price/README.md): A way to get the price of an equity using the DxFeed API behind a Data Proxy.
-- [Multi Price Feed](./examples/multi-price-feed/README.md): A price pair feed using the free APIs for Binance, Mexc, and Okx.
-- [Single Price Feed](./examples/single-price-feed/README.md): A price feed using the pro Coingecko API behind a Data Proxy.
+- [Caplight Eod Market Price](./examples/caplight-eod-market-price/README.md#overview): A way to ask for the market price history for a company leveraging the Caplight API behind a data proxy.
+- [Single Commodity Price](./examples/single-commodity-price/README.md#overview): A way to get the price of a commodity using the DxFeed API behind a Data Proxy.
+- [Single Equity Price](./examples/single-commodity-price/README.md#overview)
+- [Multi Price Feed](./examples/multi-price-feed/README.md#overview)
+- [Single Price Feed](./examples/single-price-feed/README.md#overview)
+- [Evm Price Feed](./examples/evm-price-feed/README.md#overview)
+- [Us Rates](./examples/us-rates/README.md#overview)
 
 If you'd like to learn more about how they work
 
@@ -45,10 +47,12 @@ Make sure the below are installed and in your `PATH` if you want to build, deplo
 There are a few example programs in here:
 
 - [Caplight Eod Market Price](./examples/caplight-eod-market-price/README.md): A way to ask for the market price history for a company leveraging the Caplight API behind a data proxy.
-- [Single Commodity Price](./examples/single-commodity-price/README.md): A way to get the price of a commodity using the DxFeed API behind a data proxy.
-- [Single Equity Price](./examples/single-commodity-price/README.md): A way to get the price of an equity using the DxFeed API behind a data proxy.
+- [Single Commodity Price](./examples/single-commodity-price/README.md): A way to get the price of a commodity using the DxFeed API behind a Data Proxy.
+- [Single Equity Price](./examples/single-commodity-price/README.md): A way to get the price of an equity using the DxFeed API behind a Data Proxy.
 - [Multi Price Feed](./examples/multi-price-feed/README.md): A price pair feed using the free APIs for Binance, Mexc, and Okx.
-- [Single Price Feed](./examples/single-price-feed/README.md): A price feed using the pro Coingecko API behind a data proxy.
+- [Single Price Feed](./examples/single-price-feed/README.md): A price feed using the pro Coingecko API behind a Data Proxy.
+- [EVM Price Feed](./examples/evm-price-feed/README.md): A price feed using the public Binance API, and it's inputs are also EVM ABI format.
+- [Us Rates](./examples/us-rates/README.md): Get the prices of US Assets using the Nobi API behind a Data Proxy.
 
 You can interact with the examples in various ways.
 To see help information for them all you can run:

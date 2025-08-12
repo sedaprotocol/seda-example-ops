@@ -1,11 +1,17 @@
 # EVM Price Feed
 
 Deployments:
-- Testnet: TBD
+- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/da91e2eb7906150993cddb911569ff1fb21f2783154435fad3bcc2bac990645b)
 
 ## Overview
 
 This oracle program fetches cryptocurrency prices from Binance API and returns them in a format compatible with EVM smart contracts. It supports multiple trading pairs and calculates median prices across multiple oracle nodes for consensus.
+
+You can test this Oracle Program on testnet with the following command:
+
+```sh
+cargo post-dr evm-price-feed \[\"BTC-USDT\",\"ETH-USDT\"\] -i da91e2eb7906150993cddb911569ff1fb21f2783154435fad3bcc2bac990645b
+```
 
 ## Execution Phase
 

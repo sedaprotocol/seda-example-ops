@@ -4,8 +4,6 @@ Deployments:
 - [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/ea3860e9f537eed6b4ac4ee1c97dea0fd1b7e33a29afaa846ad29671ddaa194e)
 - [Mainnet](https://mainnet.explorer.seda.xyz/oracle-programs/ae31c9c4026d259cabab6df4e012f4837175fa27572c49e313337516f971772a)
 
-iew
-
 This Oracle Program gets the price of specified crypto assets in USD by leveraging the Coingecko API, and returns the price in a format compatible with EVM smart contracts. The API is behind a Data Proxy.
 
 You can test this Oracle Program on testnet with the following command:

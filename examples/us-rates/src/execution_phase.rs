@@ -11,9 +11,9 @@ const API_URL: &str = "http://43.157.108.162:5384/proxy/price?code=";
 const PROXY_PUBLIC_KEY: &str = "0268da5dbf3c31908884c0c95096ad50c5d1a98fd3846529f9513ddcc08d37e06c";
 
 #[cfg(feature = "mainnet")]
-const API_URL: &str = "http://:5384/proxy/price?code=";
+const API_URL: &str = todo!("http://:5384/proxy/price?code=");
 #[cfg(feature = "mainnet")]
-const PROXY_PUBLIC_KEY: &str = "";
+const PROXY_PUBLIC_KEY: &str = todo!("");
 
 #[cfg(not(any(feature = "testnet", feature = "mainnet")))]
 pub fn execution_phase() -> Result<()> {
