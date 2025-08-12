@@ -8,6 +8,7 @@ members = [
 	"examples/multi-price-feed",
 	"examples/single-price-feed",
 	"examples/evm-price-feed",
+	"examples/us-rates",
 	"xtask",
 ]
 
