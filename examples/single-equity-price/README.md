@@ -7,7 +7,7 @@ Deployments:
 
 ## Overview
 
-This Oracle Program gets the price of an equity in USD using the DxFeed API, and returns the price in a format compatible with EVM smart contracts. The API is behind a Data Proxy.
+This Oracle Program gets the price of an equity in USD using the dxFeed API and returns the price in a format compatible with EVM smart contracts. The API is behind a Data Proxy.
 
 You can test this Oracle Program on testnet with the following command:
 
@@ -25,8 +25,8 @@ The Execution Phase expects a commodity symbol, see [below](#supported-data) for
 
 ### Process
 
-1. Get the input.
-1. Makes a HTTP call to the DxFeed Data Proxy.
+1. Validates the Data Request execution argument is not empty.
+1. Makes a HTTP call to the dxFeed Data Proxy.
 1. Converts the decimal to a `u128` with 2 decimal precision.
 1. Returns the `u128` in little endian format.
 
@@ -41,7 +41,7 @@ Output: `5500`
 
 ### Input
 
-No additional input required - uses the reveals from the Execution Phase.
+No additional input is required for this Oracle Program as the Tally Phase only uses the reveals from the Execution Phase.
 
 ### Process
 

@@ -6,7 +6,7 @@ Deployments:
 
 ## Overview
 
-This Oracle Program fetches the latest price pair data from several APIs(binance, mexc, okx) and takes the median of them posting the result in a format compatible with EVM smart contracts.
+This Oracle Program fetches the latest price pair data from several APIs (Binance, MEXC, OKX) and takes the median of them, posting the result in a format compatible with EVM smart contracts.
 
 You can test this Oracle Program with the following command:
 
@@ -23,10 +23,10 @@ This oracle program takes in one argument for execution:
 
 ### Process
 
-1. Get and validates the input is in the correct format.
-1. Makes HTTP calls to the three different APIs, converting their prices to `u128`s with 6 decimal precision.
-1. Takes the median of those three prices.
-1. Returns the `u128` in little endian format.
+1. Validates the Data Request execution argument is in the format of `SymbolA-SymbolB`.
+2. Makes HTTP calls to the three different APIs, converting their prices to `u128`s with 6 decimal precision.
+3. Takes the median of those three prices.
+4. Returns the `u128` in little endian format.
 
 ### Example
 
@@ -37,7 +37,7 @@ Output: `120334000128`
 
 ### Input
 
-No additional input required - uses the reveals from the Execution Phase.
+No additional input is required for this Oracle Program as the Tally Phase only uses the reveals from the Execution Phase.
 
 ### Process
 

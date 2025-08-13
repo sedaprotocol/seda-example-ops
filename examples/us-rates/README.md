@@ -20,10 +20,10 @@ The Execution Phase expects a comma separated list of crypto symbols i.e. `Rates
 
 ### Process
 
-1. Get the inputs.
-1. Makes a HTTP call to the DxFeed Data Proxy for each asset.
-1. Converts the decimals for each asset to a `u128` with 6 decimal precision.
-1. Returns the prices as a JSON array preserving the order the symbols were given in.
+1. Validates the Data Request execution argument is not empty and a valid comma separated list.
+2. Makes a HTTP call to the dxFeed Data Proxy for each asset.
+3. Converts the decimals for each asset to a `u128` with 6 decimal precision.
+4. Returns the prices as a JSON array preserving the order the symbols were given in.
 
 ### Example
 
@@ -35,7 +35,7 @@ Output: `[4276774, 119149710596]` (prices in 6 decimal precision)
 
 ### Input
 
-No additional input required - uses the reveals from the Execution Phase.
+No additional input is required for this Oracle Program as the Tally Phase only uses the reveals from the Execution Phase.
 
 ### Process
 

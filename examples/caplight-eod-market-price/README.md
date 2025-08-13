@@ -1,4 +1,4 @@
-# Caplight Eod Market Price
+# Caplight End of Day Market Price
 
 Deployments:
 - [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/58e9a7d1c7597e9580f4f44f4e64e3946bff70868f2a6e164da6cfe340a586ee)
@@ -6,7 +6,7 @@ Deployments:
 
 ## Overview
 
-This Oracle Program fetches the latest market data returned from the [Caplight API](https://platform.caplight.com/api/documentation.html#tag/MarketPrice/paths/~1market-price-history/get), and returns the price in a format compatible with EVM smart contracts. It takes a singular ID of a company and then calculates the median among those. The API is behind a Data Proxy.
+This Oracle Program fetches the latest market data returned from the [Caplight API](https://platform.caplight.com/api/documentation.html#tag/MarketPrice/paths/~1market-price-history/get) and returns the price in a format compatible with EVM smart contracts. It takes a singular ID of a company and then calculates the median among those. The API is behind a Data Proxy.
 
 You can test this Oracle Program on testnet with the following command:
 
@@ -22,10 +22,10 @@ The Execution Phase expects the `pitchbookId` of the company.
 
 ### Process
 
-1. Gets the input.
-1. Makes a HTTP call to the Caplight Data Proxy.
-1. Converts the decimal to a `u128` with 2 decimal precision.
-1. Returns the `u128` in little endian format.
+1. Validates the Data Request execution argument is not empty.
+2. Makes an HTTP call to the Caplight Data Proxy.
+3. Converts the decimal to a `u128` with 2 decimal precision.
+4. Returns the `u128` in little endian format.
 
 ### Example
 
@@ -37,7 +37,7 @@ Output: `4221`
 
 ### Input
 
-No additional input required - uses the reveals from the Execution Phase.
+No additional input is required for this Oracle Program as the Tally Phase only uses the reveals from the Execution Phase.
 
 ### Process
 

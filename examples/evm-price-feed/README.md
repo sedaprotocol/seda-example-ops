@@ -5,7 +5,7 @@ Deployments:
 
 ## Overview
 
-This oracle program fetches cryptocurrency prices from Binance API and returns them in a format compatible with EVM smart contracts. It supports multiple trading pairs and calculates median prices across multiple oracle nodes for consensus.
+This Oracle Program fetches cryptocurrency prices from Binance API and returns them in a format compatible with EVM smart contracts. It supports multiple trading pairs and calculates median prices across multiple oracle nodes for consensus.
 
 You can test this Oracle Program on testnet with the following command:
 
@@ -27,10 +27,10 @@ Where each string follows the pattern `{BASE_SYMBOL}-{QUOTE_SYMBOL}`.
 
 ### Process
 
-1. Decodes the ABI-encoded input array
-2. For each trading pair, fetches the current price from Binance API
-3. Converts prices to `u128` with 6 decimal precision
-4. Returns the prices as a JSON array
+1. Decodes the ABI-encoded input array.
+2. For each trading pair, fetches the current price from Binance API.
+3. Converts prices to `u128` with 6 decimal precision.
+4. Returns the prices as a JSON array.
 
 ### Example
 
@@ -41,14 +41,14 @@ Output: `[45000000000, 2800000000]` (prices in 6 decimal precision)
 
 ### Input
 
-No additional input required - uses the reveals from the execution phase.
+No additional input is required for this Oracle Program as the Tally Phase only uses the reveals from the Execution Phase.
 
 ### Process
 
-1. Collects all price reveals from oracle nodes
-2. Calculates the median price for each trading pair
-3. ABI-encodes the result as `uint256[]` for EVM compatibility
-4. Posts the final result
+1. Collects all price reveals from oracle nodes.
+1. Calculates the median price for each trading pair.
+1. ABI-encodes the result as `uint256[]` for EVM compatibility.
+1. Posts the final result.
 
 ### Output Format
 
