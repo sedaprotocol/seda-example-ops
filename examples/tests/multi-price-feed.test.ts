@@ -4,10 +4,10 @@ import { afterEach, describe, it, mock } from 'bun:test';
 import { testOracleProgramExecution, testOracleProgramTally } from '@seda-protocol/dev-tools';
 import { match } from 'ts-pattern';
 import {
-  createSuccessfulBigIntReveal as createSuccessfulReveal,
-  createFailedReveal,
   handleBigIntExecutionVmResult as handleExecutionVmResult,
   handleBigIntTallyVmResult as handleTallyVmResult,
+  createRevealArray,
+  RevealKind,
 } from './utils.js';
 
 const WASM_PATH = 'target/wasm32-wasip1/release/multi-price-feed.wasm';
@@ -98,60 +98,78 @@ describe('multi price feed', () => {
   describe('tally phase', () => {
     it('works with 1 price', async () => {
       const oracleProgram = await file(WASM_PATH).arrayBuffer();
-      const vmResult = await testOracleProgramTally(Buffer.from(oracleProgram), Buffer.from('tally-inputs'), [
-        createSuccessfulReveal(100n),
-      ]);
+      const vmResult = await testOracleProgramTally(
+        Buffer.from(oracleProgram),
+        Buffer.from('tally-inputs'),
+        createRevealArray([[RevealKind.BigInt, 100n]]),
+      );
       handleTallyVmResult(vmResult, 0, 100n);
     });
 
     it('works with 2 prices', async () => {
       const oracleProgram = await file(WASM_PATH).arrayBuffer();
-      const vmResult = await testOracleProgramTally(Buffer.from(oracleProgram), Buffer.from('tally-inputs'), [
-        createSuccessfulReveal(100n),
-        createSuccessfulReveal(200n),
-      ]);
+      const vmResult = await testOracleProgramTally(
+        Buffer.from(oracleProgram),
+        Buffer.from('tally-inputs'),
+        createRevealArray([
+          [RevealKind.BigInt, 100n],
+          [RevealKind.BigInt, 200n],
+        ]),
+      );
       handleTallyVmResult(vmResult, 0, 150n);
     });
 
     it('works with 5 prices', async () => {
       const oracleProgram = await file(WASM_PATH).arrayBuffer();
-      const vmResult = await testOracleProgramTally(Buffer.from(oracleProgram), Buffer.from('tally-inputs'), [
-        createSuccessfulReveal(100n),
-        createSuccessfulReveal(200n),
-        createSuccessfulReveal(300n),
-        createSuccessfulReveal(400n),
-        createSuccessfulReveal(500n),
-      ]);
+      const vmResult = await testOracleProgramTally(
+        Buffer.from(oracleProgram),
+        Buffer.from('tally-inputs'),
+        createRevealArray([
+          [RevealKind.BigInt, 100n],
+          [RevealKind.BigInt, 200n],
+          [RevealKind.BigInt, 300n],
+          [RevealKind.BigInt, 400n],
+          [RevealKind.BigInt, 500n],
+        ]),
+      );
       handleTallyVmResult(vmResult, 0, 300n);
     });
 
     it('works with 10 prices', async () => {
       const oracleProgram = await file(WASM_PATH).arrayBuffer();
-      const vmResult = await testOracleProgramTally(Buffer.from(oracleProgram), Buffer.from('tally-inputs'), [
-        createSuccessfulReveal(100n),
-        createSuccessfulReveal(200n),
-        createSuccessfulReveal(300n),
-        createSuccessfulReveal(400n),
-        createSuccessfulReveal(500n),
-        createSuccessfulReveal(600n),
-        createSuccessfulReveal(700n),
-        createSuccessfulReveal(800n),
-        createSuccessfulReveal(900n),
-        createSuccessfulReveal(1000n),
-      ]);
+      const vmResult = await testOracleProgramTally(
+        Buffer.from(oracleProgram),
+        Buffer.from('tally-inputs'),
+        createRevealArray([
+          [RevealKind.BigInt, 100n],
+          [RevealKind.BigInt, 200n],
+          [RevealKind.BigInt, 300n],
+          [RevealKind.BigInt, 400n],
+          [RevealKind.BigInt, 500n],
+          [RevealKind.BigInt, 600n],
+          [RevealKind.BigInt, 700n],
+          [RevealKind.BigInt, 800n],
+          [RevealKind.BigInt, 900n],
+          [RevealKind.BigInt, 1000n],
+        ]),
+      );
       handleTallyVmResult(vmResult, 0, 550n);
     });
 
     it('works with unsorted prices', async () => {
       const oracleProgram = await file(WASM_PATH).arrayBuffer();
-      const vmResult = await testOracleProgramTally(Buffer.from(oracleProgram), Buffer.from('tally-inputs'), [
-        createSuccessfulReveal(500n),
-        createSuccessfulReveal(100n),
-        createSuccessfulReveal(300n),
-        createSuccessfulReveal(200n),
-        createSuccessfulReveal(200n),
-        createSuccessfulReveal(400n),
-      ]);
+      const vmResult = await testOracleProgramTally(
+        Buffer.from(oracleProgram),
+        Buffer.from('tally-inputs'),
+        createRevealArray([
+          [RevealKind.BigInt, 500n],
+          [RevealKind.BigInt, 100n],
+          [RevealKind.BigInt, 300n],
+          [RevealKind.BigInt, 200n],
+          [RevealKind.BigInt, 200n],
+          [RevealKind.BigInt, 400n],
+        ]),
+      );
       handleTallyVmResult(vmResult, 0, 250n);
     });
 
@@ -159,11 +177,11 @@ describe('multi price feed', () => {
       it('should ignore the errored execution', async () => {
         const oracleProgram = await file(WASM_PATH).arrayBuffer();
 
-        const vmResult = await testOracleProgramTally(Buffer.from(oracleProgram), Buffer.from('tally-inputs'), [
-          createSuccessfulReveal(100n),
-          createFailedReveal(),
-          createSuccessfulReveal(200n),
-        ]);
+        const vmResult = await testOracleProgramTally(
+          Buffer.from(oracleProgram),
+          Buffer.from('tally-inputs'),
+          createRevealArray([[RevealKind.BigInt, 100n], [RevealKind.Failed], [RevealKind.BigInt, 200n]]),
+        );
 
         handleTallyVmResult(vmResult, 0, 150n);
       });
@@ -171,24 +189,28 @@ describe('multi price feed', () => {
       it('should ignore multiple errored executions', async () => {
         const oracleProgram = await file(WASM_PATH).arrayBuffer();
 
-        const vmResult = await testOracleProgramTally(Buffer.from(oracleProgram), Buffer.from('tally-inputs'), [
-          createSuccessfulReveal(100n),
-          createFailedReveal(),
-          createSuccessfulReveal(200n),
-          createFailedReveal(),
-          createSuccessfulReveal(300n),
-        ]);
+        const vmResult = await testOracleProgramTally(
+          Buffer.from(oracleProgram),
+          Buffer.from('tally-inputs'),
+          createRevealArray([
+            [RevealKind.BigInt, 100n],
+            [RevealKind.Failed],
+            [RevealKind.BigInt, 200n],
+            [RevealKind.Failed],
+            [RevealKind.BigInt, 300n],
+          ]),
+        );
 
         handleTallyVmResult(vmResult, 0, 200n);
       });
 
       it('should error if all executions errored', async () => {
         const oracleProgram = await file(WASM_PATH).arrayBuffer();
-        const vmResult = await testOracleProgramTally(Buffer.from(oracleProgram), Buffer.from('tally-inputs'), [
-          createFailedReveal(),
-          createFailedReveal(),
-          createFailedReveal(),
-        ]);
+        const vmResult = await testOracleProgramTally(
+          Buffer.from(oracleProgram),
+          Buffer.from('tally-inputs'),
+          createRevealArray([[RevealKind.Failed], [RevealKind.Failed], [RevealKind.Failed]]),
+        );
 
         handleTallyVmResult(vmResult, 1, 0n);
       });

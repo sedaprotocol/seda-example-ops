@@ -33,19 +33,12 @@ describe('evm price feed', () => {
       });
 
       const oracleProgram = await file(WASM_PATH).arrayBuffer();
-      const tickers = ["BTC-USDT"];
-      const execInputsStr = ethers.AbiCoder.defaultAbiCoder().encode(
-        ["string[]"],
-        [tickers]
-      );
+      const tickers = ['BTC-USDT'];
+      const execInputsStr = ethers.AbiCoder.defaultAbiCoder().encode(['string[]'], [tickers]);
       // Remove '0x' prefix
       const execInputs = Buffer.from(execInputsStr.slice(2), 'hex');
 
-      const vmResult = await testOracleProgramExecution(
-        Buffer.from(oracleProgram),
-        execInputs, 
-        fetchMock
-      );
+      const vmResult = await testOracleProgramExecution(Buffer.from(oracleProgram), execInputs, fetchMock);
       handleExecutionVmResult(vmResult, 0, [117318900000n]);
     });
 
@@ -68,11 +61,8 @@ describe('evm price feed', () => {
       });
 
       const oracleProgram = await file(WASM_PATH).arrayBuffer();
-      const tickers = ["BTC-USDT", "ETH-USDT"];
-      const execInputsStr = ethers.AbiCoder.defaultAbiCoder().encode(
-        ["string[]"],
-        [tickers]
-      );
+      const tickers = ['BTC-USDT', 'ETH-USDT'];
+      const execInputsStr = ethers.AbiCoder.defaultAbiCoder().encode(['string[]'], [tickers]);
       const execInputs = Buffer.from(execInputsStr.slice(2), 'hex');
 
       const vmResult = await testOracleProgramExecution(Buffer.from(oracleProgram), execInputs, fetchMock);

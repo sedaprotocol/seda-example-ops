@@ -21,12 +21,12 @@ function genericCreateSuccessfulReveal(result: Buffer): RevealResult {
   };
 }
 
-export function createSuccessfulJsonBigIntArrayReveal(values: bigint[]): RevealResult {
+function createSuccessfulJsonBigIntArrayReveal(values: bigint[]): RevealResult {
   const encoded = `[${values.map((v) => v.toString()).join(',')}]`;
   return genericCreateSuccessfulReveal(Buffer.from(encoded));
 }
 
-export function createSuccessfulJsonBigIntReveal(value: bigint): RevealResult {
+function createSuccessfulJsonBigIntReveal(value: bigint): RevealResult {
   const buf = Buffer.alloc(16);
   buf.writeBigUInt64LE(value & ((1n << 64n) - 1n), 0);
   buf.writeBigUInt64LE(value >> 64n, 8);
@@ -34,25 +34,48 @@ export function createSuccessfulJsonBigIntReveal(value: bigint): RevealResult {
   return genericCreateSuccessfulReveal(jsonBytes);
 }
 
-export function createSuccessfulBigIntReveal(value: bigint): RevealResult {
+function createSuccessfulBigIntReveal(value: bigint): RevealResult {
   const buf = Buffer.alloc(16);
   buf.writeBigUInt64LE(value & ((1n << 64n) - 1n), 0);
   buf.writeBigUInt64LE(value >> 64n, 8);
   return genericCreateSuccessfulReveal(buf);
 }
 
-export function createFailedReveal(): {
-  exitCode: number;
-  gasUsed: number;
-  inConsensus: boolean;
-  result: Buffer;
-} {
+function createFailedReveal(): RevealResult {
   return {
     exitCode: 1,
     gasUsed: 0,
     inConsensus: false,
     result: Buffer.from('Error while fetching symbol prices'),
   };
+}
+
+export enum RevealKind {
+  JsonBigIntArray,
+  JsonBigInt,
+  BigInt,
+  Failed,
+}
+
+export type RevealInput =
+  | [RevealKind.Failed]
+  | [RevealKind.BigInt, bigint]
+  | [RevealKind.JsonBigInt, bigint]
+  | [RevealKind.JsonBigIntArray, bigint[]];
+
+export function createRevealArray(values: RevealInput[]): RevealResult[] {
+  return values.map(([kind, val]) => {
+    switch (kind) {
+      case RevealKind.Failed:
+        return createFailedReveal();
+      case RevealKind.BigInt:
+        return createSuccessfulBigIntReveal(val as bigint);
+      case RevealKind.JsonBigInt:
+        return createSuccessfulJsonBigIntReveal(val as bigint);
+      case RevealKind.JsonBigIntArray:
+        return createSuccessfulJsonBigIntArrayReveal(val as bigint[]);
+    }
+  });
 }
 
 function genericHandleTallyVmResult<T>(vmResult: VmResult, exitCode: number, expected: T, codec?: string) {
