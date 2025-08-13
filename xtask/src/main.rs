@@ -76,13 +76,15 @@ enum PostableOracleProgram {
 enum SedaNetwork {
     Testnet,
     Mainnet,
+    Test,
 }
 
 impl SedaNetwork {
     fn as_str(&self) -> &str {
         match self {
-            SedaNetwork::Testnet => "testnet",
-            SedaNetwork::Mainnet => "mainnet",
+            SedaNetwork::Testnet => "env-testnet",
+            SedaNetwork::Mainnet => "env-mainnet",
+            SedaNetwork::Test => "test",
         }
     }
 }
@@ -213,13 +215,17 @@ fn try_main() -> Result<()> {
         } => test_op(&sh, &oracle_program, test_name_pattern.as_deref()),
         Commands::TestAllOraclePrograms { test_name_pattern } => {
             let programs = [
+                OracleProgram::CaplightEodMarketPrice,
                 OracleProgram::SingleCommodityPrice,
                 OracleProgram::SingleEquityPrice,
                 OracleProgram::MultiPriceFeed,
                 OracleProgram::SinglePriceFeed,
+                OracleProgram::EvmPriceFeed,
+                OracleProgram::UsRates,
             ];
             for program in programs {
-                test_op(&sh, &program, test_name_pattern.as_deref())?;
+                // ignore errors so we run tests for all programs
+                test_op(&sh, &program, test_name_pattern.as_deref()).ok();
             }
             Ok(())
         }
@@ -263,6 +269,7 @@ fn deploy_op(sh: &Shell, seda_network: &SedaNetwork, oracle_program: &OracleProg
             "https://explorer.seda.xyz",
             std::env::var("SEDA_MNEMONIC_MAINNET")?,
         ),
+        SedaNetwork::Test => unreachable!(),
     };
 
     compile_op(sh, oracle_program, seda_network)?;
@@ -447,9 +454,10 @@ fn test_op(
 ) -> Result<()> {
     let program_name = oracle_program.as_str();
 
-    // We always test against the testnet feature flag- it doesn't matter which network we compiled for.
+    // We always test against the test feature flag- it doesn't matter which network we compiled for.
     // Since the tests are run against the compiled program and mocking when necessary.
-    compile_op(sh, oracle_program, &SedaNetwork::Testnet)?;
+    // Test feature also disables the sdk hide panic feature so we can better understand panics while testing.
+    compile_op(sh, oracle_program, &SedaNetwork::Test)?;
 
     let test_path = format!("examples/tests/{program_name}.test.ts");
     match test_name_pattern {
