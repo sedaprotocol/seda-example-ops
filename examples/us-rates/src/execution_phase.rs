@@ -64,7 +64,6 @@ pub fn execution_phase() -> Result<()> {
         let response_data = serde_json::from_slice::<
             serde_json::value::Map<String, serde_json::value::Value>,
         >(&response.bytes)?;
-        log!("Response data for symbol {trimmed_symbol}: {response_data:?}");
 
         // Check if the response contains an error
         if let Some(message) = response_data.get("message")
