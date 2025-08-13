@@ -1,14 +1,12 @@
 // biome-ignore assist/source/organizeImports: biome is lying
 import { file } from 'bun';
 import { afterEach, describe, it, mock } from 'bun:test';
-import {
-  // testOracleProgramExecution,
-  testOracleProgramTally,
-} from '@seda-protocol/dev-tools';
+import { testOracleProgramExecution, testOracleProgramTally } from '@seda-protocol/dev-tools';
 import {
   createSuccessfulBigIntReveal as createSuccessfulReveal,
   createFailedReveal,
   handleBigIntTallyVmResult as handleVmResult,
+  handleBigIntExecutionVmResult as handleExecutionVmResult,
 } from './utils.js';
 
 const WASM_PATH = 'target/wasm32-wasip1/release/single-commodity-price.wasm';
@@ -20,6 +18,48 @@ afterEach(() => {
 });
 
 describe('single commodity price', () => {
+  describe('execution phase', () => {
+    it('works', async () => {
+      fetchMock.mockImplementation((_) => {
+        return new Response(
+          JSON.stringify({
+            Quote: {
+              'XAU/USD:BFX': {
+                askExchangeCode: '',
+                askPrice: 3313.99,
+                askSize: 100,
+                askTime: 1753710744000,
+                bidExchangeCode: '',
+                bidPrice: 3313.83,
+                bidSize: 100,
+                bidTime: 1753710744000,
+                eventSymbol: 'XAU/USD:BFX',
+                eventTime: 0,
+                sequence: 0,
+                timeNanoPart: 0,
+              },
+            },
+            status: 'OK',
+          }),
+        );
+      });
+
+      const oracleProgram = await file(WASM_PATH).arrayBuffer();
+
+      const vmResult = await testOracleProgramExecution(
+        Buffer.from(oracleProgram),
+        Buffer.from('XAU'),
+        fetchMock,
+        undefined,
+        undefined,
+        undefined,
+        0n,
+      );
+
+      handleExecutionVmResult(vmResult, 0, 331399n);
+    });
+  });
+
   describe('tally phase', () => {
     it('works with 1 price', async () => {
       const oracleProgram = await file(WASM_PATH).arrayBuffer();

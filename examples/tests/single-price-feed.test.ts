@@ -1,14 +1,12 @@
 // biome-ignore assist/source/organizeImports: biome is lying
 import { file } from 'bun';
 import { afterEach, describe, it, mock, test } from 'bun:test';
-import {
-  // testOracleProgramExecution,
-  testOracleProgramTally,
-} from '@seda-protocol/dev-tools';
+import { testOracleProgramExecution, testOracleProgramTally } from '@seda-protocol/dev-tools';
 import {
   createSuccessfulJsonBigIntArrayReveal as createSuccessfulReveal,
   createFailedReveal,
   handleBigIntArrayTallyVmResult as handleVmResult,
+  handleJsonArrayBigIntExecutionVmResult as handleExecutionVmResult,
 } from './utils.js';
 
 const WASM_PATH = 'target/wasm32-wasip1/release/single-price-feed.wasm';
@@ -20,6 +18,28 @@ afterEach(() => {
 });
 
 describe('single price feed', () => {
+  describe('execution phase', () => {
+    it('works', async () => {
+      fetchMock.mockImplementation((_) => {
+        return new Response(JSON.stringify({ bitcoin: { usd: 121239 }, ethereum: { usd: 4658.03 } }));
+      });
+
+      const oracleProgram = await file(WASM_PATH).arrayBuffer();
+
+      const vmResult = await testOracleProgramExecution(
+        Buffer.from(oracleProgram),
+        Buffer.from('BTC,ETH'),
+        fetchMock,
+        undefined,
+        undefined,
+        undefined,
+        0n,
+      );
+
+      handleExecutionVmResult(vmResult, 0, [121239000000n, 4658030000n]);
+    });
+  });
+
   describe('tally phase', () => {
     describe('works with 1 price', () => {
       const cases = [

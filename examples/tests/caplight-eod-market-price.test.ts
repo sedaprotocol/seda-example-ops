@@ -1,14 +1,12 @@
 // biome-ignore assist/source/organizeImports: biome is lying
 import { file } from 'bun';
 import { afterEach, describe, it, mock } from 'bun:test';
-import {
-  // testOracleProgramExecution,
-  testOracleProgramTally,
-} from '@seda-protocol/dev-tools';
+import { testOracleProgramExecution, testOracleProgramTally } from '@seda-protocol/dev-tools';
 import {
   createSuccessfulBigIntReveal as createSuccessfulReveal,
   createFailedReveal,
   handleBigIntTallyVmResult as handleVmResult,
+  handleBigIntExecutionVmResult as handleExecutionVmResult,
 } from './utils.js';
 
 const WASM_PATH = 'target/wasm32-wasip1/release/caplight-eod-market-price.wasm';
@@ -20,6 +18,42 @@ afterEach(() => {
 });
 
 describe('single commodity price', () => {
+  describe('execution phase', () => {
+    it('works', async () => {
+      fetchMock.mockImplementation((_) => {
+        return new Response(
+          JSON.stringify({
+            date: '2022-09-10',
+            price: 15.9,
+            estimatedValuation: 2150000000,
+            priceStandardError: 1.35,
+            generatedAtTimestamp: 1690000000,
+            daysSinceLastDataPoint: 10,
+            numberOfPoints6mo: 12,
+            orderImbalance: {
+              bidContribution: 0.53,
+              offerContribution: 0.25,
+            },
+          }),
+        );
+      });
+
+      const oracleProgram = await file(WASM_PATH).arrayBuffer();
+
+      const vmResult = await testOracleProgramExecution(
+        Buffer.from(oracleProgram),
+        Buffer.from('BTC-USDT'),
+        fetchMock,
+        undefined,
+        undefined,
+        undefined,
+        0n,
+      );
+
+      handleExecutionVmResult(vmResult, 0, 1590n);
+    });
+  });
+
   describe('tally phase', () => {
     it('works with 1 price', async () => {
       const oracleProgram = await file(WASM_PATH).arrayBuffer();

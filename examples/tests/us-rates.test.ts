@@ -1,14 +1,12 @@
 // biome-ignore assist/source/organizeImports: biome is lying
 import { file } from 'bun';
 import { afterEach, describe, it, mock, test } from 'bun:test';
-import {
-  // testOracleProgramExecution,
-  testOracleProgramTally,
-} from '@seda-protocol/dev-tools';
+import { testOracleProgramExecution, testOracleProgramTally } from '@seda-protocol/dev-tools';
 import {
   createSuccessfulJsonBigIntArrayReveal as createSuccessfulReveal,
   createFailedReveal,
   handleBigIntArrayTallyVmResult as handleVmResult,
+  handleJsonArrayBigIntExecutionVmResult as handleExecutionVmResult,
 } from './utils.js';
 
 const WASM_PATH = 'target/wasm32-wasip1/release/us-rates.wasm';
@@ -20,6 +18,54 @@ afterEach(() => {
 });
 
 describe('single price feed', () => {
+  describe('execution phase', () => {
+    it('works', async () => {
+      fetchMock
+        .mockImplementationOnce(
+          () =>
+            new Response(
+              JSON.stringify({
+                data: {
+                  ask: '4.291743682395',
+                  bid: '4.261806257605',
+                  code: 'Rates:US:US10Y',
+                  price: '4.27677497',
+                },
+                ts: 1754967226765,
+              }),
+            ),
+        )
+        .mockImplementationOnce(
+          () =>
+            new Response(
+              JSON.stringify({
+                data: {
+                  ask: '119268.86030752693',
+                  bid: '119030.56088633307',
+                  code: 'Crypto:ALL:BTC/USDT',
+                  price: '119149.71059693',
+                },
+                ts: 1754967227022,
+              }),
+            ),
+        );
+
+      const oracleProgram = await file(WASM_PATH).arrayBuffer();
+
+      const vmResult = await testOracleProgramExecution(
+        Buffer.from(oracleProgram),
+        Buffer.from('Rates:US:US10Y,Crypto:ALL:BTC/USDT'),
+        fetchMock,
+        undefined,
+        undefined,
+        undefined,
+        0n,
+      );
+
+      handleExecutionVmResult(vmResult, 0, [4276774n, 119149710596n]);
+    });
+  });
+
   describe('tally phase', () => {
     describe('works with 1 price', () => {
       const cases = [

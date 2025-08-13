@@ -84,6 +84,16 @@ export function handleJsonBigIntExecutionVmResult(vmResult: VmResult, exitCode: 
   expect(value).toBe(expected);
 }
 
+export function handleJsonArrayBigIntExecutionVmResult(vmResult: VmResult, exitCode: number, expected: bigint[]) {
+  genericHandleTallyVmResult(vmResult, exitCode, expected);
+  // convert vmResult.result from bytes of json(serde_json::to_vec) to a buffer
+  const jsonString = Buffer.from(vmResult.result).toString('utf-8');
+  expect(jsonString).toBeDefined();
+  expect(jsonString.length).toBeGreaterThan(0);
+  const jsonArray = JSON.parse(jsonString).map((v) => BigInt(v));
+  expect(jsonArray).toEqual(expected);
+}
+
 export function handleBigIntExecutionVmResult(vmResult: VmResult, exitCode: number, expected: bigint) {
   genericHandleTallyVmResult(vmResult, exitCode, expected);
   // convert Uint8Array of 16bytes(u128) to bigint from le_bytes
@@ -103,15 +113,15 @@ export function handleBigIntArrayTallyVmResult(vmResult: VmResult, exitCode: num
 
 export function handleJsonBigIntArrayExecutionVmResult(vmResult: VmResult, exitCode: number, expected: bigint[]) {
   genericHandleTallyVmResult(vmResult, exitCode, expected);
-  
+
   // Parse JSON array of bigint strings
   const jsonString = Buffer.from(vmResult.result).toString('utf-8');
   expect(jsonString).toBeDefined();
   expect(jsonString.length).toBeGreaterThan(0);
-  
+
   const jsonArray = JSON.parse(jsonString);
   expect(Array.isArray(jsonArray)).toBe(true);
-  
+
   // Convert each string to bigint and compare
   const values = jsonArray.map((v: string) => BigInt(v));
   expect(values).toEqual(expected);
