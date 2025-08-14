@@ -8,9 +8,9 @@ const API_URL: &str = "http://98.84.79.123:5384/proxy/uslf_q/";
 const PROXY_PUBLIC_KEY: &str = "0375038bc3e61dc2a52e24ff207a5753e38d020a06fff9efc8ec96875f72f4d081";
 
 #[cfg(feature = "mainnet")]
-const API_URL: &str = todo!("http://:5384/proxy/");
+const API_URL: &str = "http://seda-proxy.dxfeed.com:5384/proxy/uslf_q/";
 #[cfg(feature = "mainnet")]
-const PROXY_PUBLIC_KEY: &str = todo!("");
+const PROXY_PUBLIC_KEY: &str = "021dd035f760061e2833581d4ab50440a355db0ac98e489bf63a5dbc0e89e4af79";
 
 #[cfg(not(any(feature = "testnet", feature = "mainnet")))]
 pub fn execution_phase() -> Result<()> {
@@ -46,9 +46,6 @@ struct EquityPriceResponse {
 
 #[cfg(any(feature = "testnet", feature = "mainnet"))]
 pub fn execution_phase() -> Result<()> {
-    #[cfg(feature = "mainnet")]
-    unimplemented!("Mainnet execution phase is not yet implemented");
-
     // Expected to be in the format "symbol,..." (e.g., "AAPL" or "GOOG").
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
     if dr_inputs_raw.is_empty() {
@@ -67,7 +64,7 @@ pub fn execution_phase() -> Result<()> {
     // Handle the case where the HTTP request failed or was rejected.
     if !response.is_ok() {
         elog!(
-            "HTTP Response was rejected: {} - {}",
+            "HTTP Response was rejected: {} - {} ProxyPublicKey {PROXY_PUBLIC_KEY}",
             response.status,
             String::from_utf8(response.bytes)?
         );

@@ -8,9 +8,9 @@ const API_URL: &str = "http://98.84.79.123:5384/proxy/cfd/";
 const PROXY_PUBLIC_KEY: &str = "0375038bc3e61dc2a52e24ff207a5753e38d020a06fff9efc8ec96875f72f4d081";
 
 #[cfg(feature = "mainnet")]
-const API_URL: &str = todo!("http://:5384/proxy/");
+const API_URL: &str = "http://seda-proxy.dxfeed.com:5384/proxy/cfd/";
 #[cfg(feature = "mainnet")]
-const PROXY_PUBLIC_KEY: &str = todo!("");
+const PROXY_PUBLIC_KEY: &str = "021dd035f760061e2833581d4ab50440a355db0ac98e489bf63a5dbc0e89e4af79";
 
 #[cfg(not(any(feature = "testnet", feature = "mainnet")))]
 pub fn execution_phase() -> Result<()> {
@@ -47,10 +47,9 @@ struct CommodityPriceResponse {
 
 #[cfg(any(feature = "testnet", feature = "mainnet"))]
 pub fn execution_phase() -> Result<()> {
-    #[cfg(feature = "mainnet")]
-    unimplemented!("Mainnet execution phase is not yet implemented");
-
     // Expected to be in the format "symbol,..." (e.g., "XAU" or "BRN").
+
+    use seda_sdk_rs::HttpFetchOptions;
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
 
     // If no input is provided, log an error and return.
@@ -65,7 +64,16 @@ pub fn execution_phase() -> Result<()> {
 
     // Get the price in USD
     let url = [API_URL, &dr_inputs_raw, "/USD"].concat();
-    let response = proxy_http_fetch(url, Some(PROXY_PUBLIC_KEY.to_string()), None);
+    let response = proxy_http_fetch(
+        url,
+        Some(PROXY_PUBLIC_KEY.to_string()),
+        Some(HttpFetchOptions {
+            method: seda_sdk_rs::HttpFetchMethod::Get,
+            headers: Default::default(),
+            body: None,
+            timeout_ms: Some(20_000),
+        }),
+    );
 
     // Handle the case where the HTTP request failed or was rejected.
     if !response.is_ok() {
@@ -79,7 +87,15 @@ pub fn execution_phase() -> Result<()> {
     }
 
     // Parse the API response as defined earlier.
-    let response_data = serde_json::from_slice::<CommodityPriceResponse>(&response.bytes)?;
+    let response_data = match serde_json::from_slice::<CommodityPriceResponse>(&response.bytes) {
+        Ok(data) => data,
+        Err(err) => {
+            let data = String::from_utf8(response.bytes)?;
+            elog!("Failed to parse API response: {err}, response data: {data}");
+            Process::error("Failed to parse API response".as_bytes());
+            return Ok(());
+        }
+    };
 
     let price = response_data
         .quote
