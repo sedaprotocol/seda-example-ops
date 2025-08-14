@@ -422,7 +422,7 @@ fn post_evm_price_feed(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(), a
     cmd.arg("--exec-inputs")
         .arg(symbols)
         .arg("--decode-abi")
-        .arg("uint256[]")
+        .arg("int256[]")
         .arg("--encode-exec-inputs")
         .arg("string[]")
         .run()?;

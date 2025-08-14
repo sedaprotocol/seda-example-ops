@@ -47,19 +47,19 @@ No additional input is required for this Oracle Program as the Tally Phase only 
 
 1. Collects all price reveals from oracle nodes.
 1. Calculates the median price for each trading pair.
-1. ABI-encodes the result as `uint256[]` for EVM compatibility.
+1. ABI-encodes the result as `int256[]` for EVM compatibility.
 1. Posts the final result.
 
 ### Output Format
 
-The result is ABI-encoded as `uint256[]` where each element represents the median price of the corresponding trading pair in the input order.
+The result is ABI-encoded as `int256[]` where each element represents the median price of the corresponding trading pair in the input order.
 
 ### Example
 If the execution phase processed `["BTC-USD", "ETH-USD"]` and the median prices were:
 - BTC-USD: $45,000.00 (45000000000 in 6 decimals)
 - ETH-USD: $2,800.00 (2800000000 in 6 decimals)
 
-The tally phase would return: `[45000000000, 2800000000]` ABI-encoded as `uint256[]`.
+The tally phase would return: `[45000000000, 2800000000]` ABI-encoded as `int256[]`.
 
 ## Supported Trading Pairs
 

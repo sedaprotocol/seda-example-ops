@@ -77,6 +77,6 @@ fn median_each_asset(data: &[Vec<u128>]) -> Result<Vec<Token>> {
             vals.sort();
             median_sorted(&vals)
         })
-        .map(|p| Token::Uint(U256::from(p)))
+        .map(|p| Token::Int(U256::from(p)))
         .collect())
 }
