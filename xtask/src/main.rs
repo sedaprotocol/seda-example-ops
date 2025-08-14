@@ -125,7 +125,7 @@ struct PostDataRequest {
     #[arg(global = true, short, long)]
     tally_gas_limit: Option<u128>,
     /// The network to post the data request to.
-    #[arg(global = true,short, long, value_enum, default_value_t = PostableNetwork::SedaTestnet)]
+    #[arg(global = true, short, long, value_enum, default_value_t = PostableNetwork::SedaTestnet)]
     network: PostableNetwork,
     /// The oracle program to post the data request for.
     #[command(subcommand)]
@@ -147,7 +147,7 @@ enum Commands {
         /// The oracle program to deploy.
         oracle_program: OracleProgram,
         /// The Seda network to deploy the oracle program to.
-        #[arg(value_enum, default_value_t = SedaNetwork::Testnet)]
+        #[arg(global = true, short, long, value_enum, default_value_t = SedaNetwork::Testnet)]
         network: SedaNetwork,
     },
     /// Install necessary tools for working with SEDA oracle programs.
