@@ -2,7 +2,7 @@
 
 Deployments:
 - [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/1434bbb580db612a8de085e1c24d4db2984268ad9bd3c99352dc2b077f674cad)
-<!-- - [Mainnet](https://explorer.seda.xyz/oracle-programs/9ebbd3ff5b31e6e1ae61c7dedb63f59e2f3f5ce2eb36ec45b84fa5a024c2081c) -->
+- [Mainnet](https://explorer.seda.xyz/oracle-programs/9ebbd3ff5b31e6e1ae61c7dedb63f59e2f3f5ce2eb36ec45b84fa5a024c2081c)
 
 ## Overview
 
@@ -63,7 +63,24 @@ The tally phase would return `150` ABI-encoded as a `uint256`.
 
 ## Supported Data
 
+### Testnet
+
 A Commodity symbol from the approved list:
 - WTI
 - BRN
 - XAU
+
+### Mainnet
+
+A Commodity symbol from the approved list:
+- DJI
+- XPT
+- WTI
+- BRN
+- SPX
+- CAU
+- XPD
+- CUC
+- NDX
+- NGC
+- XAG
