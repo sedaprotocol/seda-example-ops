@@ -11,9 +11,9 @@ const API_URL: &str = "http://43.157.108.162:5384/proxy/price?code=";
 const PROXY_PUBLIC_KEY: &str = "0268da5dbf3c31908884c0c95096ad50c5d1a98fd3846529f9513ddcc08d37e06c";
 
 #[cfg(feature = "mainnet")]
-const API_URL: &str = todo!("http://:5384/proxy/price?code=");
+const API_URL: &str = "http://seda.labs.usenobi.com:5384/proxy/price?code=";
 #[cfg(feature = "mainnet")]
-const PROXY_PUBLIC_KEY: &str = todo!("");
+const PROXY_PUBLIC_KEY: &str = "03aa3acda2feea7f55c7cfdfc1b906c741cb98d1ad80653b0a199555021134ee22";
 
 #[cfg(not(any(feature = "testnet", feature = "mainnet")))]
 pub fn execution_phase() -> Result<()> {
@@ -23,10 +23,7 @@ pub fn execution_phase() -> Result<()> {
 
 #[cfg(any(feature = "testnet", feature = "mainnet"))]
 pub fn execution_phase() -> Result<()> {
-    #[cfg(feature = "mainnet")]
-    unimplemented!("Mainnet execution phase is not yet implemented");
-
-    // Expected to be in the format "symbolA,SymbolB,..." (e.g., "Crypto:ALL:BTC/USDT,Rates:US:US10Y,Equity:US:AAPL").
+    // Expected to be in the format "symbolA,SymbolB,..." (e.g., "Crypto:ALL:BTC/USDT,Rates:US:US10Y").
     // Supports any Nobi Labs symbol format.
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
 
@@ -45,14 +42,25 @@ pub fn execution_phase() -> Result<()> {
     let mut prices = Vec::with_capacity(symbols.len());
 
     for symbol in symbols {
+        use seda_sdk_rs::HttpFetchOptions;
+
         let trimmed_symbol = symbol.trim();
         let url = [API_URL, trimmed_symbol].concat();
-        let response = proxy_http_fetch(url, Some(PROXY_PUBLIC_KEY.to_string()), None);
+        let response = proxy_http_fetch(
+            url,
+            Some(PROXY_PUBLIC_KEY.to_string()),
+            Some(HttpFetchOptions {
+                method: seda_sdk_rs::HttpFetchMethod::Get,
+                headers: Default::default(),
+                body: None,
+                timeout_ms: Some(20_000),
+            }),
+        );
 
         // Handle the case where the HTTP request failed or was rejected.
         if !response.is_ok() {
             elog!(
-                "HTTP Response was rejected for symbol {trimmed_symbol}: {} - {}",
+                "HTTP Response was rejected for symbol {trimmed_symbol}: {} - {} ProxyPubKey {PROXY_PUBLIC_KEY}",
                 response.status,
                 String::from_utf8(response.bytes)?
             );

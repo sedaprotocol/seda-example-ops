@@ -2,7 +2,7 @@
 
 Deployments:
 - [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/50cff5a0423bdeffe509eccfc4cd2b61d926df5c64a7ef440561e35a131884ee)
-<!-- - [Mainnet](https://mainnet.explorer.seda.xyz/oracle-programs/ae31c9c4026d259cabab6df4e012f4837175fa27572c49e313337516f971772a) -->
+- [Mainnet](https://mainnet.explorer.seda.xyz/oracle-programs/8eb8bb39a9d644bfde97cfb9b780c377c3f8c01fcc3298bc6f7921ffa51c5db2)
 
 This Oracle Program gets the price of specified assets in by leveraging the Nobi API, and returns the price in a format compatible with EVM smart contracts. The API is behind a Data Proxy.
 
