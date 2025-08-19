@@ -20,6 +20,7 @@ enum OracleProgram {
     SingleEquityPrice,
     MultiPriceFeed,
     SinglePriceFeed,
+    SinglePriceFeedVerification,
     EvmPriceFeed,
     UsRates,
 }
@@ -32,6 +33,7 @@ impl OracleProgram {
             OracleProgram::SingleEquityPrice => "single-equity-price",
             OracleProgram::MultiPriceFeed => "multi-price-feed",
             OracleProgram::SinglePriceFeed => "single-price-feed",
+            OracleProgram::SinglePriceFeedVerification => "single-price-feed-verification",
             OracleProgram::EvmPriceFeed => "evm-price-feed",
             OracleProgram::UsRates => "us-rates",
         }
@@ -58,6 +60,10 @@ enum PostableOracleProgram {
         symbols: String,
     },
     SinglePriceFeed {
+        /// Comma-separated list of symbols to fetch prices for (e.g., BTC,ETH)
+        symbols: String,
+    },
+    SinglePriceFeedVerification {
         /// Comma-separated list of symbols to fetch prices for (e.g., BTC,ETH)
         symbols: String,
     },
@@ -362,7 +368,8 @@ impl PostDataRequest {
             PostableOracleProgram::MultiPriceFeed { symbols } => {
                 post_multi_price_feed(cmd, &symbols)
             }
-            PostableOracleProgram::SinglePriceFeed { symbols } => {
+            PostableOracleProgram::SinglePriceFeed { symbols }
+            | PostableOracleProgram::SinglePriceFeedVerification { symbols } => {
                 post_single_price_feed(cmd, &symbols)
             }
             PostableOracleProgram::EvmPriceFeed { symbols } => post_evm_price_feed(cmd, &symbols),

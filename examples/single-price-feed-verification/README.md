@@ -1,15 +1,15 @@
-# Simple Price Feed
+# Simple Price Feed Verification
 
 Deployments:
-- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/ea3860e9f537eed6b4ac4ee1c97dea0fd1b7e33a29afaa846ad29671ddaa194e)
-- [Mainnet](https://explorer.seda.xyz/oracle-programs/ae31c9c4026d259cabab6df4e012f4837175fa27572c49e313337516f971772a)
+- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/4a833af00bb978730f34bb966fac1025c9719f93af6a61a8092d18db4549f62b)
+<!-- - [Mainnet](https://explorer.seda.xyz/oracle-programs/) -->
 
 This Oracle Program gets the price of specified crypto assets in USD by leveraging the Coingecko API and returns the price in a format compatible with EVM smart contracts. The API is behind a Data Proxy.
 
 You can test this Oracle Program on testnet with the following command:
 
 ```sh
-cargo post-dr single-price-feed BTC,ETH -i ea3860e9f537eed6b4ac4ee1c97dea0fd1b7e33a29afaa846ad29671ddaa194e
+cargo post-dr single-price-feed-verification BTC,ETH -i 4a833af00bb978730f34bb966fac1025c9719f93af6a61a8092d18db4549f62b
 ```
 
 ## Execution Phase:
@@ -20,10 +20,10 @@ The Execution Phase expects a comma separated list of crypto symbols i.e. `BTC,E
 
 ### Process
 
+1. Ensures the Replication Factor is only 1.
 1. Validates the Data Request execution argument is not empty.
 1. Makes a HTTP call to the dxFeed Data Proxy.
-1. Converts the decimal to a `u128` with 6 decimal precision.
-1. Returns the prices as a JSON array preserving the order the symbols were given in.
+1. Returns the bytes of the Http call.
 
 ### Example
 
@@ -39,7 +39,11 @@ No additional input is required for this Oracle Program as the Tally Phase only 
 
 ### Process
 
-1. Collects all price reveals from oracle nodes.
+1. Ensures there was only a Replication Factor 1.
+1. Gets the HttpFetch Data from the reveal.
+1. Does the verification of the Proxy Response.
+1. Converts the decimal to a `u128` with 6 decimal precision.
+1. Returns the prices as a JSON array preserving the order the symbols were given in.
 1. Calculates the median price from all the given prices for each crypto symbol individually.
 1. ABI-encodes the result as a `uint256` for EVM compatibility.
 1. Posts the final result returning the same order of symbols given in the Execution Phase.
