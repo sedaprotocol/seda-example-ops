@@ -934,6 +934,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "single-equity-price-verification"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "const-hex",
+ "ethabi",
+ "k256",
+ "seda-sdk-rs",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "single-price-feed"
 version = "0.1.0"
 dependencies = [

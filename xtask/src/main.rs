@@ -18,6 +18,7 @@ enum OracleProgram {
     CaplightEodMarketPrice,
     SingleCommodityPrice,
     SingleEquityPrice,
+    SingleEquityPriceVerification,
     MultiPriceFeed,
     SinglePriceFeed,
     SinglePriceFeedVerification,
@@ -31,6 +32,7 @@ impl OracleProgram {
             OracleProgram::CaplightEodMarketPrice => "caplight-eod-market-price",
             OracleProgram::SingleCommodityPrice => "single-commodity-price",
             OracleProgram::SingleEquityPrice => "single-equity-price",
+            OracleProgram::SingleEquityPriceVerification => "single-equity-price-verification",
             OracleProgram::MultiPriceFeed => "multi-price-feed",
             OracleProgram::SinglePriceFeed => "single-price-feed",
             OracleProgram::SinglePriceFeedVerification => "single-price-feed-verification",
@@ -52,6 +54,10 @@ enum PostableOracleProgram {
         symbol: String,
     },
     SingleEquityPrice {
+        /// A singular equity symbol to fetch prices for (e.g., AAPL/GOOGL/etc.)
+        symbol: String,
+    },
+    SingleEquityPriceVerification {
         /// A singular equity symbol to fetch prices for (e.g., AAPL/GOOGL/etc.)
         symbol: String,
     },
@@ -224,8 +230,10 @@ fn try_main() -> Result<()> {
                 OracleProgram::CaplightEodMarketPrice,
                 OracleProgram::SingleCommodityPrice,
                 OracleProgram::SingleEquityPrice,
+                OracleProgram::SingleEquityPriceVerification,
                 OracleProgram::MultiPriceFeed,
                 OracleProgram::SinglePriceFeed,
+                OracleProgram::SingleEquityPriceVerification,
                 OracleProgram::EvmPriceFeed,
                 OracleProgram::UsRates,
             ];
@@ -362,7 +370,8 @@ impl PostDataRequest {
             PostableOracleProgram::SingleCommodityPrice { symbol } => {
                 post_single_commodity_price(cmd, &symbol)
             }
-            PostableOracleProgram::SingleEquityPrice { symbol } => {
+            PostableOracleProgram::SingleEquityPrice { symbol }
+            | PostableOracleProgram::SingleEquityPriceVerification { symbol } => {
                 post_single_equity_price(cmd, &symbol)
             }
             PostableOracleProgram::MultiPriceFeed { symbols } => {
