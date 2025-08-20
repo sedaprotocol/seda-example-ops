@@ -5,6 +5,7 @@ members = [
 	"examples/caplight-eod-market-price",
 	"examples/single-commodity-price",
 	"examples/single-equity-price",
+	"examples/single-equity-price-verification",
 	"examples/multi-price-feed",
 	"examples/single-price-feed",
 	"examples/single-price-feed-verification",
