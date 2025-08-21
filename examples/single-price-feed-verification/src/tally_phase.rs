@@ -1,11 +1,6 @@
-use anyhow::{Result, anyhow};
-use const_hex::const_decode_to_array;
+use anyhow::Result;
 use ethabi::{Token, ethereum_types::U256};
-use k256::ecdsa::{Signature, VerifyingKey, signature::hazmat::PrehashVerifier};
-use seda_sdk_rs::{
-    HttpFetchMethod, HttpFetchResponse, Process, bytes::ToBytes, elog,
-    generate_proxy_http_signing_message, get_unfiltered_reveals, keccak256, log,
-};
+use seda_sdk_rs::{HttpFetchMethod, HttpFetchResponse, Process, elog, get_unfiltered_reveals, log};
 
 pub fn tally_phase() -> Result<()> {
     // Retrieve consensus reveals from the tally phase.
@@ -21,32 +16,7 @@ pub fn tally_phase() -> Result<()> {
 
     let http_response: HttpFetchResponse = serde_json::from_slice(&reveals[0].body.reveal)?;
 
-    let signature_hex = http_response
-        .headers
-        .get("x-seda-signature")
-        .ok_or_else(|| anyhow!("Missing x-seda-signature header"))?;
-    let public_key_hex = http_response
-        .headers
-        .get("x-seda-publickey")
-        .ok_or_else(|| anyhow!("Missing x-seda-publickey header"))?;
-
-    let signature: [u8; 64] = const_decode_to_array(signature_hex.as_bytes())?;
-    let public_key: [u8; 33] = const_decode_to_array(public_key_hex.as_bytes())?;
-
-    let message = generate_proxy_http_signing_message(
-        http_response.url,
-        HttpFetchMethod::Get,
-        Vec::with_capacity(0).to_bytes(),
-        http_response.bytes.clone().to_bytes(),
-    )
-    .eject();
-
-    let public_key_obj = VerifyingKey::from_sec1_bytes(&public_key)?;
-    let signature_obj = Signature::from_slice(&signature)?;
-    let hashed_message = keccak256(message);
-    let verified = public_key_obj
-        .verify_prehash(&hashed_message, &signature_obj)
-        .is_ok();
+    let verified = http_response.proxy_verification(HttpFetchMethod::Get, None)?;
 
     if !verified {
         elog!("Signature verification failed for the proxy response: {verified}");

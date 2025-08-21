@@ -22,7 +22,7 @@
     "ethers": "^6.15.0"
   },
   "dependencies": {
-    "@seda-protocol/vm": "^1.0.16",
+    "@seda-protocol/vm": "../seda-sdk/dist/libs/vm",
     "ts-pattern": "^5.8.0"
   }
 }
