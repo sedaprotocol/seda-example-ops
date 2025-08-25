@@ -17,5 +17,5 @@ mainnet = []
 [dependencies]
 anyhow = "1.0"
 serde_json = "1.0"
-seda-sdk-rs = { version = "1.0", default-features = false }
+seda-sdk-rs = { version = "1.1", default-features = false }
 ethabi = "18.0"
