@@ -15,6 +15,8 @@ struct Cli {
 /// The oracle programs that can be managed.
 #[derive(Clone, ValueEnum)]
 enum OracleProgram {
+    BlocksizeBidask,
+    BlocksizeVwap,
     CaplightEodMarketPrice,
     SingleCommodityPrice,
     SingleEquityPrice,
@@ -29,6 +31,8 @@ enum OracleProgram {
 impl OracleProgram {
     fn as_str(&self) -> &str {
         match self {
+            OracleProgram::BlocksizeBidask => "blocksize-bidask",
+            OracleProgram::BlocksizeVwap => "blocksize-vwap",
             OracleProgram::CaplightEodMarketPrice => "caplight-eod-market-price",
             OracleProgram::SingleCommodityPrice => "single-commodity-price",
             OracleProgram::SingleEquityPrice => "single-equity-price",
@@ -45,6 +49,12 @@ impl OracleProgram {
 /// The oracle programs that can have a data request posted to a network.
 #[derive(Subcommand)]
 enum PostableOracleProgram {
+    BlocksizeBidask {
+        symbol: String,
+    },
+    BlocksizeVwap {
+        pair: String,
+    },
     CaplightEodMarketPrice {
         /// The project ID to fetch prices for.
         project_id: String,
@@ -236,6 +246,8 @@ fn try_main() -> Result<()> {
                 OracleProgram::SingleEquityPriceVerification,
                 OracleProgram::EvmPriceFeed,
                 OracleProgram::UsRates,
+                OracleProgram::BlocksizeBidask,
+                OracleProgram::BlocksizeVwap,
             ];
             for program in programs {
                 // ignore errors so we run tests for all programs
@@ -364,6 +376,10 @@ impl PostDataRequest {
         };
 
         match self.oracle_program {
+            PostableOracleProgram::BlocksizeBidask { symbol } => {
+                post_blocksize_bidask(cmd, &symbol)
+            }
+            PostableOracleProgram::BlocksizeVwap { pair } => post_blocksize_vwap(cmd, &pair),
             PostableOracleProgram::CaplightEodMarketPrice { project_id } => {
                 post_caplight_eod_market_price(cmd, &project_id)
             }
@@ -385,6 +401,24 @@ impl PostDataRequest {
             PostableOracleProgram::UsRates { symbols } => us_rates(cmd, &symbols),
         }
     }
+}
+
+fn post_blocksize_bidask(cmd: Cmd<'_>, symbol: &str) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs")
+        .arg(symbol)
+        .arg("--decode-abi")
+        .arg("uint256")
+        .run()?;
+    Ok(())
+}
+
+fn post_blocksize_vwap(cmd: Cmd<'_>, pair: &str) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs")
+        .arg(pair)
+        .arg("--decode-abi")
+        .arg("uint256")
+        .run()?;
+    Ok(())
 }
 
 fn post_caplight_eod_market_price(
