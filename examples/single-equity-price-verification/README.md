@@ -1,7 +1,7 @@
 # Simple Equity Price
 
 Deployments:
-- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/f91d3dca943e0e1136ad7149b48f71f39c1d80e190af4eb0c6deaf7255a2d76a)
+- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/5e0153bfc2faf4a2f17b8efba694da57033d53035e0f9cc6e9c0c77d53767b4c)
 <!-- - [Mainnet](https://explorer.seda.xyz/oracle-programs/) -->
 
 
@@ -12,7 +12,7 @@ This Oracle Program gets the price of an equity in USD using the dxFeed API and 
 You can test this Oracle Program on testnet with the following command:
 
 ```sh
-cargo post-dr single-equity-price-verification TSLA -i f91d3dca943e0e1136ad7149b48f71f39c1d80e190af4eb0c6deaf7255a2d76a --gas-price 4000
+cargo post-dr single-equity-price-verification TSLA -i 5e0153bfc2faf4a2f17b8efba694da57033d53035e0f9cc6e9c0c77d53767b4c --gas-price 4000
 ```
 
 > ![NOTE] For this Oracle Program multiply `300000000000000` by your `replication-factor` to get your `exec-gas-limit`.

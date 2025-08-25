@@ -55,7 +55,6 @@ pub fn execution_phase() -> Result<()> {
         Process::error("Error while fetching symbol prices".as_bytes());
         return Ok(());
     }
-    log!("HTTP Response: {response:?}");
 
     // Report the successful result back to the SEDA network.
     Process::success(&serde_json::to_vec(&response)?);

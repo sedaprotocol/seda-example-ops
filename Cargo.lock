@@ -118,7 +118,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ethabi",
- "seda-sdk-rs 1.0.0",
+ "seda-sdk-rs",
  "serde_json",
 ]
 
@@ -332,7 +332,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ethabi",
- "seda-sdk-rs 1.0.0",
+ "seda-sdk-rs",
  "serde",
  "serde_json",
 ]
@@ -481,7 +481,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ethabi",
- "seda-sdk-rs 1.0.0",
+ "seda-sdk-rs",
  "serde",
  "serde_json",
 ]
@@ -681,22 +681,9 @@ dependencies = [
 
 [[package]]
 name = "seda-sdk-rs"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ac45bd96bc67158e8bc11dbc005013727bcedbc9e93d3faec292187de274303"
-dependencies = [
- "anyhow",
- "ctor",
- "hex",
- "seda-sdk-macros",
- "serde",
- "serde_json",
- "thiserror 2.0.12",
-]
-
-[[package]]
-name = "seda-sdk-rs"
 version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eac2d4deace04c90d2771b6ab1f974528e60f8820b69841bdefee458e1efbd0d"
 dependencies = [
  "anyhow",
  "const-hex",
@@ -757,7 +744,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ethabi",
- "seda-sdk-rs 1.0.0",
+ "seda-sdk-rs",
  "serde",
  "serde_json",
 ]
@@ -768,7 +755,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ethabi",
- "seda-sdk-rs 1.0.0",
+ "seda-sdk-rs",
  "serde",
  "serde_json",
 ]
@@ -779,7 +766,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ethabi",
- "seda-sdk-rs 1.1.0",
+ "seda-sdk-rs",
  "serde",
  "serde_json",
 ]
@@ -790,7 +777,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ethabi",
- "seda-sdk-rs 1.0.0",
+ "seda-sdk-rs",
  "serde_json",
 ]
 
@@ -800,7 +787,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ethabi",
- "seda-sdk-rs 1.1.0",
+ "seda-sdk-rs",
  "serde_json",
 ]
 
@@ -935,7 +922,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ethabi",
- "seda-sdk-rs 1.0.0",
+ "seda-sdk-rs",
  "serde",
  "serde_json",
 ]

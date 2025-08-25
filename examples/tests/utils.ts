@@ -2,6 +2,7 @@
 import { expect } from 'bun:test';
 import { AbiCoder as _AbiCoder } from 'ethers';
 import type { HttpFetchResponseData, VmResult } from '@seda-protocol/vm';
+import { TestDataProxy } from '@seda-protocol/dev-tools';
 
 export const AbiCoder = _AbiCoder.defaultAbiCoder();
 
@@ -68,7 +69,7 @@ export type RevealInput =
   | [RevealKind.BigInt, bigint]
   | [RevealKind.JsonBigInt, bigint]
   | [RevealKind.JsonBigIntArray, bigint[]]
-  | [RevealKind.HttpFetchResponse, HttpFetchResponseData];
+  | [RevealKind.HttpFetchResponse, HttpFetchResponseData | unknown];
 
 export function createRevealArray(values: RevealInput[]): RevealResult[] {
   return values.map(([kind, val]) => {
@@ -87,26 +88,39 @@ export function createRevealArray(values: RevealInput[]): RevealResult[] {
   });
 }
 
-export function makeDataProxyResponse(url: string, obj: unknown, publickey?: string, signature?: string) {
-  // error if obj is not an Object
-  if (typeof obj !== 'object' || obj === null) {
-    throw new Error('Invalid object');
-  }
+const data_proxy = new TestDataProxy();
 
-  const json = JSON.stringify(obj);
-  const bytes = new TextEncoder().encode(json);
-  const res = new Response(bytes, {
+export async function makeDataProxyResponse(
+  url: string | URL,
+  responseBody: unknown,
+  method: string = 'GET',
+  requestBody?: unknown,
+): Promise<{
+  dataProxyResponse: HttpFetchResponseData;
+  mockedResponse: Response;
+}> {
+  if (typeof responseBody !== 'object' || responseBody === null) throw new Error('Invalid responseBody object');
+  if (requestBody !== undefined && (typeof requestBody !== 'object' || requestBody === null))
+    throw new Error('Invalid requestBody object');
+
+  const urlStr = typeof url === 'string' ? url : url.href;
+  const responseBodyBuffer = Buffer.from(JSON.stringify(responseBody));
+  const requestBodyBuffer = requestBody ? Buffer.from(JSON.stringify(requestBody)) : undefined;
+  const dataProxyResponse = await data_proxy.createResponse(urlStr, method, 200, responseBodyBuffer, requestBodyBuffer);
+  const headersObj =
+    dataProxyResponse.headers instanceof Headers
+      ? Object.fromEntries(dataProxyResponse.headers.entries())
+      : dataProxyResponse.headers;
+  const res = new Response(Buffer.from(dataProxyResponse.bytes), {
     status: 200,
-    headers: {
-      'x-seda-publickey': publickey || '02ee9686b002e8f57f9a2ca7089a6b587c9ef4e6c2b67159add5151a42ce5e6668',
-      'x-seda-signature':
-        signature ||
-        '20fab238a55e7e09353c3a7f7903987035e692923d0419514491191501a793f3675bbec89bc4a61f9bc03eef4bdb3147002d39d15a0b47686ca2fecd66134578',
-    },
+    headers: headersObj,
   });
-  Object.defineProperty(res, 'url', { value: url });
-  Object.defineProperty(res, 'size', { value: bytes.length });
-  return res;
+  Object.defineProperty(res, 'url', { value: dataProxyResponse.url });
+  Object.defineProperty(res, 'size', { value: dataProxyResponse.bytes.length });
+  return {
+    dataProxyResponse: { ...dataProxyResponse, headers: headersObj },
+    mockedResponse: res,
+  };
 }
 
 function genericHandleTallyVmResult<T>(vmResult: VmResult, exitCode: number, expected: T, codec?: string) {
@@ -131,7 +145,7 @@ export function handleJsonBigIntExecutionVmResult(vmResult: VmResult, exitCode: 
   expect(jsonString).toBeDefined();
   expect(jsonString.length).toBeGreaterThan(0);
   const jsonArray = JSON.parse(jsonString);
-  // convert Uint8Array of 16bytes(u128) to bigint from le_bytes
+  // convert Uint8Array of 16bytes(u128) to bigint from leBytes
   const buf = Buffer.from(jsonArray);
   expect(buf.length).toBe(16);
   const value = BigInt.asUintN(128, BigInt(buf.readBigUInt64LE(0)) + (BigInt(buf.readBigUInt64LE(8)) << 64n));
@@ -150,7 +164,7 @@ export function handleJsonArrayBigIntExecutionVmResult(vmResult: VmResult, exitC
 
 export function handleBigIntExecutionVmResult(vmResult: VmResult, exitCode: number, expected: bigint) {
   genericHandleTallyVmResult(vmResult, exitCode, expected);
-  // convert Uint8Array of 16bytes(u128) to bigint from le_bytes
+  // convert Uint8Array of 16bytes(u128) to bigint from leBytes
   const buf = Buffer.from(vmResult.result);
   expect(buf.length).toBe(16);
   const value = BigInt.asUintN(128, BigInt(buf.readBigUInt64LE(0)) + (BigInt(buf.readBigUInt64LE(8)) << 64n));
@@ -160,13 +174,15 @@ export function handleBigIntExecutionVmResult(vmResult: VmResult, exitCode: numb
 export function handleHttpFetchResponseExecutionVmResult(
   vmResult: VmResult,
   exitCode: number,
-  expected: HttpFetchResponseData,
+  expected: unknown, // allow either bare or enveloped
+  responseBody: unknown,
 ) {
   genericHandleTallyVmResult(vmResult, exitCode, expected);
-
-  // convert vmResult.result from bytes to HttpFetchResponse
-  const response = JSON.parse(Buffer.from(vmResult.result).toString('utf-8')) as HttpFetchResponseData;
-  expect(response).toEqual(expected);
+  const parsed = JSON.parse(Buffer.from(vmResult.result).toString('utf-8'));
+  expect(parsed).toEqual(expected); // compare whole shape (enveloped or not)
+  const inner = parsed && typeof parsed === 'object' && 'response' in parsed ? parsed.response : parsed;
+  const responseObject = JSON.parse(Buffer.from(inner.bytes).toString('utf-8'));
+  expect(responseObject).toEqual(responseBody);
 }
 
 export function handleBigIntTallyVmResult(vmResult: VmResult, exitCode: number, expected: bigint) {
