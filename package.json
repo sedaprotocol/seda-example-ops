@@ -15,14 +15,14 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@seda-protocol/dev-tools": "^1.0.2",
+    "@seda-protocol/dev-tools": "^1.0.3",
     "@types/bun": "^1.2.13",
     "@types/commander": "^2.12.0",
     "commander": "^14.0.0",
     "ethers": "^6.15.0"
   },
   "dependencies": {
-    "@seda-protocol/vm": "../seda-sdk/dist/libs/vm",
+    "@seda-protocol/vm": "^1.1.0",
     "ts-pattern": "^5.8.0"
   }
 }

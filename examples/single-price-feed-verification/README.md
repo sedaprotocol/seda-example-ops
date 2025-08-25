@@ -1,15 +1,17 @@
 # Simple Price Feed Verification
 
 Deployments:
-- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/4a833af00bb978730f34bb966fac1025c9719f93af6a61a8092d18db4549f62b)
+- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/6bcdbb4cacf4a941888746c5122c30e84827d6f2f288dac63d8acd5f4b30a757)
 <!-- - [Mainnet](https://explorer.seda.xyz/oracle-programs/) -->
+
+## Overview
 
 This Oracle Program gets the price of specified crypto assets in USD by leveraging the Coingecko API and returns the price in a format compatible with EVM smart contracts. The API is behind a Data Proxy.
 
 You can test this Oracle Program on testnet with the following command:
 
 ```sh
-cargo post-dr single-price-feed-verification BTC,ETH -i 4a833af00bb978730f34bb966fac1025c9719f93af6a61a8092d18db4549f62b
+cargo post-dr single-price-feed-verification BTC,ETH -i 6bcdbb4cacf4a941888746c5122c30e84827d6f2f288dac63d8acd5f4b30a757
 ```
 
 ## Execution Phase:

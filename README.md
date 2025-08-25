@@ -21,9 +21,11 @@ Clink the links below to learn how to quickly post a Data Request specifically f
 
 - [Caplight Eod Market Price](./examples/caplight-eod-market-price/README.md#overview)
 - [Single Commodity Price](./examples/single-commodity-price/README.md#overview)
-- [Single Equity Price](./examples/single-commodity-price/README.md#overview)
+- [Single Equity Price](./examples/single-equity-price/README.md#overview)
+- [Single Equity Price Verification](./examples/single-equity-price-verification/README.md#overview)
 - [Multi Price Feed](./examples/multi-price-feed/README.md#overview)
 - [Single Price Feed](./examples/single-price-feed/README.md#overview)
+- [Single Price Feed Verification](./examples/single-price-feed-verification/README.md#overview)
 - [EVM Price Feed](./examples/evm-price-feed/README.md#overview)
 - [US Rates](./examples/us-rates/README.md#overview)
 
@@ -47,8 +49,10 @@ Please find a few example Oracle Programs here:
 - [Caplight Eod Market Price](./examples/caplight-eod-market-price/README.md): A way to ask for the market price history for a company leveraging the Caplight API behind a data proxy.
 - [Single Commodity Price](./examples/single-commodity-price/README.md): A way to get the price of a commodity using the dxFeed API behind a Data Proxy.
 - [Single Equity Price](./examples/single-commodity-price/README.md): A way to get the price of an equity using the dxFeed API behind a Data Proxy.
+- [Single Equity Price Verification](./examples/single-equity-price-verification/README.md)
 - [Multi Price Feed](./examples/multi-price-feed/README.md): A price pair feed using the free APIs for Binance, MEXC, and OKX.
 - [Single Price Feed](./examples/single-price-feed/README.md): A price feed using the pro Coingecko API behind a Data Proxy.
+- [Single Price Feed Verification](./examples/single-price-feed-verification/README.md#overview)
 - [EVM Price Feed](./examples/evm-price-feed/README.md): A price feed using the public Binance API, and its inputs are also EVM ABI format.
 - [US Rates](./examples/us-rates/README.md): Get the prices of US Assets using the Nobi API behind a Data Proxy.
 
