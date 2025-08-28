@@ -2,6 +2,8 @@
 resolver = "2"
 default-members = ["xtask"]
 members = [
+	"examples/blocksize-bidask",
+	"examples/blocksize-vwap",
 	"examples/caplight-eod-market-price",
 	"examples/single-commodity-price",
 	"examples/single-equity-price",

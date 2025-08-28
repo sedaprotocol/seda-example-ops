@@ -95,6 +95,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "blocksize-bidask"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ethabi",
+ "seda-sdk-rs",
+ "serde_json",
+]
+
+[[package]]
+name = "blocksize-vwap"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ethabi",
+ "seda-sdk-rs",
+ "serde_json",
+]
+
+[[package]]
 name = "byte-slice-cast"
 version = "1.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
