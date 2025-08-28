@@ -19,7 +19,7 @@ cargo post-dr blocksize-bidask ETHUSD -i 67d72c90bff19765b751aaad7b550d7c488390d
 
 ### Input Format
 
-The Execution Phase expects a price pair symbol.
+The Execution Phase expects a price pair symbol, and optionally the field from the response to use. By default it will use the `agg_ask_price` field from the API response.
 
 ### Process
 
@@ -28,11 +28,20 @@ The Execution Phase expects a price pair symbol.
 1. Converts the decimal to a `u128` with 2 decimal precision.
 1. Returns the `u128` in little endian format.
 
-### Example
+### Examples
+
+#### With No Field
 
 Input: `ETHUSD`
 
 Output: `4537066188`
+
+
+#### With a Field
+
+Input: `ETHUSD-agg_bid_price`
+
+Output: `4362597230`
 
 
 ## Tally Phase

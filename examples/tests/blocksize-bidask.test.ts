@@ -19,7 +19,7 @@ afterEach(() => {
 
 describe('single price feed', () => {
   describe('execution phase', () => {
-    it('works', async () => {
+    it('works with no field specified', async () => {
       fetchMock.mockImplementation((_) => {
         return new Response(
           JSON.stringify({
@@ -47,6 +47,36 @@ describe('single price feed', () => {
       );
 
       handleExecutionVmResult(vmResult, 0, 4364092969n);
+    });
+
+    it('works with a specified field', async () => {
+      fetchMock.mockImplementation((_) => {
+        return new Response(
+          JSON.stringify({
+            ticker: 'ETHUSD',
+            agg_bid_price: '4362.597230371793',
+            agg_bid_size: '98.42767488000001',
+            agg_ask_price: '4364.092969924804',
+            agg_ask_size: '125.29260208',
+            agg_mid_price: '4363.345100148298',
+            ts: 1756156227634385,
+          }),
+        );
+      });
+
+      const oracleProgram = await file(WASM_PATH).arrayBuffer();
+
+      const vmResult = await testOracleProgramExecution(
+        Buffer.from(oracleProgram),
+        Buffer.from('ETHUSD-agg_bid_price'),
+        fetchMock,
+        undefined,
+        undefined,
+        undefined,
+        0n,
+      );
+
+      handleExecutionVmResult(vmResult, 0, 4362597230n);
     });
   });
 

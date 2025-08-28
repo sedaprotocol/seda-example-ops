@@ -36,6 +36,7 @@ pub fn execution_phase() -> Result<()> {
     unimplemented!("Mainnet not yet supported");
 
     // Expected to be in the format "symbol" (e.g., "ETHUSD" or "BTCUSD").
+    // Optionally followed by the field name (e.g., "agg_ask_price") separated by a hyphen(-).
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
     if dr_inputs_raw.is_empty() {
         // If no input is provided, log an error and return.
@@ -44,10 +45,22 @@ pub fn execution_phase() -> Result<()> {
         return Ok(());
     }
 
-    // Log the asset being fetched as part of the Execution Standard Out.
-    log!("Fetching price for: {dr_inputs_raw}");
+    let parts: Vec<&str> = dr_inputs_raw.split('-').collect();
+    let (pair, field) = match parts.as_slice() {
+        [pair, field] => (pair, *field),
+        [pair] => (pair, "agg_ask_price"),
+        _ => {
+            elog!("Invalid input format");
+            Process::error("Invalid input format".as_bytes());
+            return Ok(());
+        }
+    };
+    log!("Fetching price for: {pair}, and using {field}");
 
-    let url = [API_URL, &dr_inputs_raw].concat();
+    // Log the asset being fetched as part of the Execution Standard Out.
+    log!("Fetching price for: {pair}");
+
+    let url = [API_URL, pair].concat();
     let response = proxy_http_fetch(
         url,
         Some(PROXY_PUBLIC_KEY.to_string()),
@@ -76,9 +89,9 @@ pub fn execution_phase() -> Result<()> {
     )?;
 
     let price = response_data
-        .get("agg_ask_price")
+        .get(field)
         .and_then(|price| price.as_str())
-        .ok_or_else(|| anyhow::anyhow!("agg_ask_price not found in response or is invalid"))?;
+        .ok_or_else(|| anyhow::anyhow!("{field} not found in response or is invalid"))?;
     let price_lossless = make_price(price, 6)?;
     log!("Fetched price: {price_lossless:?}");
 
