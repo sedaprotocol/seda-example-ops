@@ -86,7 +86,7 @@ pub fn execution_phase() -> Result<()> {
         .get("price")
         .and_then(|price| price.as_f64())
         .ok_or_else(|| anyhow::anyhow!("Price not found in response"))?;
-    let price_lossless = (price * 100.0) as u128;
+    let price_lossless = (price * 1_000_000.0) as u128;
     log!("Fetched price: {price_lossless:?}");
 
     // Report the successful result back to the SEDA network.
