@@ -1,7 +1,7 @@
 # Caplight End of Day Market Price
 
 Deployments:
-- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/58e9a7d1c7597e9580f4f44f4e64e3946bff70868f2a6e164da6cfe340a586ee)
+- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/97ab05dee5f27f8ff1b7dafd4506a5de8924b17535989139c9e8b865ff062e0e)
 <!-- - [Mainnet]() -->
 
 ## Overview
@@ -11,7 +11,7 @@ This Oracle Program fetches the latest market data returned from the [Caplight A
 You can test this Oracle Program on testnet with the following command:
 
 ```sh
-cargo post-dr caplight-eod-market-price 54782-29 -i 58e9a7d1c7597e9580f4f44f4e64e3946bff70868f2a6e164da6cfe340a586ee -r 3
+cargo post-dr caplight-eod-market-price 54782-29 -i 97ab05dee5f27f8ff1b7dafd4506a5de8924b17535989139c9e8b865ff062e0e
 ```
 
 ## Execution Phase:
