@@ -243,7 +243,7 @@ fn try_main() -> Result<()> {
                 OracleProgram::SingleEquityPriceVerification,
                 OracleProgram::MultiPriceFeed,
                 OracleProgram::SinglePriceFeed,
-                OracleProgram::SingleEquityPriceVerification,
+                OracleProgram::SinglePriceFeedVerification,
                 OracleProgram::EvmPriceFeed,
                 OracleProgram::UsRates,
                 OracleProgram::BlocksizeBidask,
@@ -407,7 +407,7 @@ fn post_blocksize_bidask(cmd: Cmd<'_>, symbol: &str) -> std::result::Result<(), 
     cmd.arg("--exec-inputs")
         .arg(symbol)
         .arg("--decode-abi")
-        .arg("uint256")
+        .arg("uint256[]")
         .run()?;
     Ok(())
 }
@@ -416,7 +416,7 @@ fn post_blocksize_vwap(cmd: Cmd<'_>, pair: &str) -> std::result::Result<(), anyh
     cmd.arg("--exec-inputs")
         .arg(pair)
         .arg("--decode-abi")
-        .arg("uint256")
+        .arg("uint256[]")
         .run()?;
     Ok(())
 }

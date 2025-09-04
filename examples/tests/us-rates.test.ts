@@ -17,7 +17,7 @@ afterEach(() => {
   fetchMock.mockRestore();
 });
 
-describe('single price feed', () => {
+describe('us rates', () => {
   describe('execution phase', () => {
     it('works', async () => {
       fetchMock

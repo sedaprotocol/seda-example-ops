@@ -17,7 +17,7 @@ afterEach(() => {
   fetchMock.mockRestore();
 });
 
-describe('single commodity price', () => {
+describe('caplight eod market price', () => {
   describe('execution phase', () => {
     it('works', async () => {
       fetchMock.mockImplementation((_) => {

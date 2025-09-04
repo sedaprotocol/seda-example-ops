@@ -19,7 +19,7 @@ afterEach(() => {
   fetchMock.mockRestore();
 });
 
-describe('single price feed', () => {
+describe('single price feed verification', () => {
   describe('execution phase', () => {
     it('works', async () => {
       const responseBody = {
