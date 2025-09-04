@@ -42,6 +42,15 @@ function createSuccessfulBigIntReveal(value: bigint): RevealResult {
   return genericCreateSuccessfulReveal(buf);
 }
 
+function createSuccessfulBigIntArrayReveal(value: bigint[]): RevealResult {
+  const buf = Buffer.alloc(16 * value.length);
+  value.forEach((v, i) => {
+    buf.writeBigUInt64LE(v & ((1n << 64n) - 1n), i * 16);
+    buf.writeBigUInt64LE(v >> 64n, i * 16 + 8);
+  });
+  return genericCreateSuccessfulReveal(buf);
+}
+
 function createSuccessfulHttpFetchResponseReveal(data: HttpFetchResponseData): RevealResult {
   const jsonBytes = Buffer.from(JSON.stringify(data));
   return genericCreateSuccessfulReveal(jsonBytes);
@@ -60,6 +69,7 @@ export enum RevealKind {
   JsonBigIntArray,
   JsonBigInt,
   BigInt,
+  BigIntArray,
   Failed,
   HttpFetchResponse,
 }
@@ -67,6 +77,7 @@ export enum RevealKind {
 export type RevealInput =
   | [RevealKind.Failed]
   | [RevealKind.BigInt, bigint]
+  | [RevealKind.BigIntArray, bigint[]]
   | [RevealKind.JsonBigInt, bigint]
   | [RevealKind.JsonBigIntArray, bigint[]]
   | [RevealKind.HttpFetchResponse, HttpFetchResponseData | unknown];
@@ -78,6 +89,8 @@ export function createRevealArray(values: RevealInput[]): RevealResult[] {
         return createFailedReveal();
       case RevealKind.BigInt:
         return createSuccessfulBigIntReveal(val as bigint);
+      case RevealKind.BigIntArray:
+        return createSuccessfulBigIntArrayReveal(val as bigint[]);
       case RevealKind.JsonBigInt:
         return createSuccessfulJsonBigIntReveal(val as bigint);
       case RevealKind.JsonBigIntArray:
@@ -140,6 +153,8 @@ function genericHandleTallyVmResult<T>(vmResult: VmResult, exitCode: number, exp
 
 export function handleJsonBigIntExecutionVmResult(vmResult: VmResult, exitCode: number, expected: bigint) {
   genericHandleTallyVmResult(vmResult, exitCode, expected);
+  if (vmResult.exitCode !== 0) return;
+
   // convert vmResult.result from bytes of json(serde_json::to_vec) to a buffer
   const jsonString = Buffer.from(vmResult.result).toString('utf-8');
   expect(jsonString).toBeDefined();
@@ -154,6 +169,8 @@ export function handleJsonBigIntExecutionVmResult(vmResult: VmResult, exitCode: 
 
 export function handleJsonArrayBigIntExecutionVmResult(vmResult: VmResult, exitCode: number, expected: bigint[]) {
   genericHandleTallyVmResult(vmResult, exitCode, expected);
+  if (vmResult.exitCode !== 0) return;
+
   // convert vmResult.result from bytes of json(serde_json::to_vec) to a buffer
   const jsonString = Buffer.from(vmResult.result).toString('utf-8');
   expect(jsonString).toBeDefined();
@@ -164,11 +181,28 @@ export function handleJsonArrayBigIntExecutionVmResult(vmResult: VmResult, exitC
 
 export function handleBigIntExecutionVmResult(vmResult: VmResult, exitCode: number, expected: bigint) {
   genericHandleTallyVmResult(vmResult, exitCode, expected);
+  if (vmResult.exitCode !== 0) return;
+
   // convert Uint8Array of 16bytes(u128) to bigint from leBytes
   const buf = Buffer.from(vmResult.result);
   expect(buf.length).toBe(16);
   const value = BigInt.asUintN(128, BigInt(buf.readBigUInt64LE(0)) + (BigInt(buf.readBigUInt64LE(8)) << 64n));
   expect(value).toBe(expected);
+}
+
+export function handleBigIntArrayExecutionVmResult(vmResult: VmResult, exitCode: number, expected: bigint[]) {
+  genericHandleTallyVmResult(vmResult, exitCode, expected);
+  if (vmResult.exitCode !== 0) return;
+
+  // convert Uint8Array of n 16bytes(u128) to bigint[] from leBytes
+  const buf = Buffer.from(vmResult.result);
+  expect(buf.length % 16).toBe(0);
+  const values = [];
+  for (let i = 0; i < buf.length; i += 16) {
+    const value = BigInt.asUintN(128, BigInt(buf.readBigUInt64LE(i)) + (BigInt(buf.readBigUInt64LE(i + 8)) << 64n));
+    values.push(value);
+  }
+  expect(values).toEqual(expected);
 }
 
 export function handleHttpFetchResponseExecutionVmResult(
@@ -178,6 +212,8 @@ export function handleHttpFetchResponseExecutionVmResult(
   responseBody: unknown,
 ) {
   genericHandleTallyVmResult(vmResult, exitCode, expected);
+  if (vmResult.exitCode !== 0) return;
+
   const parsed = JSON.parse(Buffer.from(vmResult.result).toString('utf-8'));
   expect(parsed).toEqual(expected); // compare whole shape (enveloped or not)
   const inner = parsed && typeof parsed === 'object' && 'response' in parsed ? parsed.response : parsed;
@@ -195,6 +231,7 @@ export function handleBigIntArrayTallyVmResult(vmResult: VmResult, exitCode: num
 
 export function handleJsonBigIntArrayExecutionVmResult(vmResult: VmResult, exitCode: number, expected: bigint[]) {
   genericHandleTallyVmResult(vmResult, exitCode, expected);
+  if (vmResult.exitCode !== 0) return;
 
   // Parse JSON array of bigint strings
   const jsonString = Buffer.from(vmResult.result).toString('utf-8');
