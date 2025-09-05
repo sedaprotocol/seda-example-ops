@@ -18,6 +18,7 @@ enum OracleProgram {
     BlocksizeBidask,
     BlocksizeVwap,
     CaplightEodMarketPrice,
+    EquityOrCommodityPrice,
     SingleCommodityPrice,
     SingleEquityPrice,
     SingleEquityPriceVerification,
@@ -34,6 +35,7 @@ impl OracleProgram {
             OracleProgram::BlocksizeBidask => "blocksize-bidask",
             OracleProgram::BlocksizeVwap => "blocksize-vwap",
             OracleProgram::CaplightEodMarketPrice => "caplight-eod-market-price",
+            OracleProgram::EquityOrCommodityPrice => "equity-or-commodity-price",
             OracleProgram::SingleCommodityPrice => "single-commodity-price",
             OracleProgram::SingleEquityPrice => "single-equity-price",
             OracleProgram::SingleEquityPriceVerification => "single-equity-price-verification",
@@ -44,6 +46,14 @@ impl OracleProgram {
             OracleProgram::UsRates => "us-rates",
         }
     }
+}
+
+/// The networks that can have a data request posted to them.
+/// Note: Currently, only Seda networks are supported for posting data requests.
+#[derive(Clone, ValueEnum)]
+enum EquityOrCommodityPriceSymbol {
+    Commodity,
+    Equity,
 }
 
 /// The oracle programs that can have a data request posted to a network.
@@ -58,6 +68,12 @@ enum PostableOracleProgram {
     CaplightEodMarketPrice {
         /// The project ID to fetch prices for.
         project_id: String,
+    },
+    EquityOrCommodityPrice {
+        /// The asset type to fetch prices for (either "commodity" or "equity").
+        asset_type: EquityOrCommodityPriceSymbol,
+        /// The symbol to fetch prices for (e.g., AAPL, XAU, etc.)
+        symbol: String,
     },
     SingleCommodityPrice {
         /// A singular commodity symbol to fetch prices for (e.g., XAU, BRN, etc.)
@@ -237,17 +253,18 @@ fn try_main() -> Result<()> {
         } => test_op(&sh, &oracle_program, test_name_pattern.as_deref()),
         Commands::TestAllOraclePrograms { test_name_pattern } => {
             let programs = [
+                OracleProgram::BlocksizeBidask,
+                OracleProgram::BlocksizeVwap,
                 OracleProgram::CaplightEodMarketPrice,
+                OracleProgram::EquityOrCommodityPrice,
+                OracleProgram::EvmPriceFeed,
+                OracleProgram::MultiPriceFeed,
                 OracleProgram::SingleCommodityPrice,
                 OracleProgram::SingleEquityPrice,
                 OracleProgram::SingleEquityPriceVerification,
-                OracleProgram::MultiPriceFeed,
                 OracleProgram::SinglePriceFeed,
                 OracleProgram::SinglePriceFeedVerification,
-                OracleProgram::EvmPriceFeed,
                 OracleProgram::UsRates,
-                OracleProgram::BlocksizeBidask,
-                OracleProgram::BlocksizeVwap,
             ];
             for program in programs {
                 // ignore errors so we run tests for all programs
@@ -383,6 +400,9 @@ impl PostDataRequest {
             PostableOracleProgram::CaplightEodMarketPrice { project_id } => {
                 post_caplight_eod_market_price(cmd, &project_id)
             }
+            PostableOracleProgram::EquityOrCommodityPrice { asset_type, symbol } => {
+                post_equity_or_commodity_price(cmd, asset_type, &symbol)
+            }
             PostableOracleProgram::SingleCommodityPrice { symbol } => {
                 post_single_commodity_price(cmd, &symbol)
             }
@@ -427,6 +447,24 @@ fn post_caplight_eod_market_price(
 ) -> std::result::Result<(), anyhow::Error> {
     cmd.arg("--exec-inputs")
         .arg(symbol)
+        .arg("--decode-abi")
+        .arg("uint256")
+        .run()?;
+    Ok(())
+}
+
+fn post_equity_or_commodity_price(
+    cmd: Cmd<'_>,
+    asset_type: EquityOrCommodityPriceSymbol,
+    symbol: &str,
+) -> std::result::Result<(), anyhow::Error> {
+    let asset_type = match asset_type {
+        EquityOrCommodityPriceSymbol::Commodity => "fx",
+        EquityOrCommodityPriceSymbol::Equity => "equity",
+    };
+    let exec_input = format!("{asset_type}/{symbol}");
+    cmd.arg("--exec-inputs")
+        .arg(exec_input)
         .arg("--decode-abi")
         .arg("uint256")
         .run()?;
