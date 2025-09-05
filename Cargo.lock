@@ -297,6 +297,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7454e41ff9012c00d53cf7f475c5e3afa3b91b7c90568495495e8d9bf47a1055"
 
 [[package]]
+name = "equity-or-commodity-price"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ethabi",
+ "seda-sdk-rs",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -22,6 +22,7 @@ Clink the links below to learn how to quickly post a Data Request specifically f
 - [Blocksize Bidask](./examples/blocksize-bidask/README.md#overview)
 - [Blocksize VWAP](./examples/blocksize-vwap/README.md#overview)
 - [Caplight Eod Market Price](./examples/caplight-eod-market-price/README.md#overview)
+- [Equity or Commodity Price](./examples/equity-or-commodity-price/README.md#overview)
 - [Single Commodity Price](./examples/single-commodity-price/README.md#overview)
 - [Single Equity Price](./examples/single-equity-price/README.md#overview)
 - [Single Equity Price Verification](./examples/single-equity-price-verification/README.md#overview)
@@ -51,6 +52,7 @@ Please find a few example Oracle Programs here:
 - [Blocksize Bidask](./examples/blocksize-bidask/README.md): Receives the latest aggregated bid ask for one pair from the Blocksize API behind a Data Proxy.
 - [Blocksize VWAP](./examples/blocksize-vwap/README.md): Receives the latest volume weighted average price for one pair from the Blocksize API behind a Data Proxy.
 - [Caplight Eod Market Price](./examples/caplight-eod-market-price/README.md): A way to ask for the market price history for a company leveraging the Caplight API behind a data proxy.
+- [Equity or Commodity Price](./examples/equity-or-commodity-price/README.md): A way to get the price of a commodity or equity using the dxFeed API behind a Data Proxy.
 - [Single Commodity Price](./examples/single-commodity-price/README.md): A way to get the price of a commodity using the dxFeed API behind a Data Proxy.
 - [Single Equity Price](./examples/single-commodity-price/README.md): A way to get the price of an equity using the dxFeed API behind a Data Proxy.
 - [Single Equity Price Verification](./examples/single-equity-price-verification/README.md)

@@ -5,6 +5,7 @@ members = [
 	"examples/blocksize-bidask",
 	"examples/blocksize-vwap",
 	"examples/caplight-eod-market-price",
+	"examples/equity-or-commodity-price",
 	"examples/single-commodity-price",
 	"examples/single-equity-price",
 	"examples/single-equity-price-verification",
