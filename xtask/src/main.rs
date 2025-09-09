@@ -18,14 +18,14 @@ enum OracleProgram {
     BlocksizeBidask,
     BlocksizeVwap,
     CaplightEodMarketPrice,
-    EquityOrCommodityPrice,
+    EvmPriceFeed,
+    GenericDxfeed,
+    MultiPriceFeed,
     SingleCommodityPrice,
     SingleEquityPrice,
     SingleEquityPriceVerification,
-    MultiPriceFeed,
     SinglePriceFeed,
     SinglePriceFeedVerification,
-    EvmPriceFeed,
     UsRates,
 }
 
@@ -35,14 +35,14 @@ impl OracleProgram {
             OracleProgram::BlocksizeBidask => "blocksize-bidask",
             OracleProgram::BlocksizeVwap => "blocksize-vwap",
             OracleProgram::CaplightEodMarketPrice => "caplight-eod-market-price",
-            OracleProgram::EquityOrCommodityPrice => "equity-or-commodity-price",
+            OracleProgram::EvmPriceFeed => "evm-price-feed",
+            OracleProgram::GenericDxfeed => "generic-dxfeed",
+            OracleProgram::MultiPriceFeed => "multi-price-feed",
             OracleProgram::SingleCommodityPrice => "single-commodity-price",
             OracleProgram::SingleEquityPrice => "single-equity-price",
             OracleProgram::SingleEquityPriceVerification => "single-equity-price-verification",
-            OracleProgram::MultiPriceFeed => "multi-price-feed",
             OracleProgram::SinglePriceFeed => "single-price-feed",
             OracleProgram::SinglePriceFeedVerification => "single-price-feed-verification",
-            OracleProgram::EvmPriceFeed => "evm-price-feed",
             OracleProgram::UsRates => "us-rates",
         }
     }
@@ -51,7 +51,7 @@ impl OracleProgram {
 /// The networks that can have a data request posted to them.
 /// Note: Currently, only Seda networks are supported for posting data requests.
 #[derive(Clone, ValueEnum)]
-enum EquityOrCommodityPriceSymbol {
+enum DxfeedSymbol {
     Commodity,
     Equity,
     Fx,
@@ -73,9 +73,9 @@ enum PostableOracleProgram {
         /// The project ID to fetch prices for.
         project_id: String,
     },
-    EquityOrCommodityPrice {
-        /// The asset type to fetch prices for (either "commodity" or "equity").
-        asset_type: EquityOrCommodityPriceSymbol,
+    GenericDxfeed {
+        /// The asset type to fetch prices for (either "commodity", "equity", or an "fx" pair).
+        asset_type: DxfeedSymbol,
         /// The symbol to fetch prices for (e.g., AAPL, XAU, etc.)
         symbol: String,
     },
@@ -260,7 +260,7 @@ fn try_main() -> Result<()> {
                 OracleProgram::BlocksizeBidask,
                 OracleProgram::BlocksizeVwap,
                 OracleProgram::CaplightEodMarketPrice,
-                OracleProgram::EquityOrCommodityPrice,
+                OracleProgram::GenericDxfeed,
                 OracleProgram::EvmPriceFeed,
                 OracleProgram::MultiPriceFeed,
                 OracleProgram::SingleCommodityPrice,
@@ -404,7 +404,7 @@ impl PostDataRequest {
             PostableOracleProgram::CaplightEodMarketPrice { project_id } => {
                 post_caplight_eod_market_price(cmd, &project_id)
             }
-            PostableOracleProgram::EquityOrCommodityPrice { asset_type, symbol } => {
+            PostableOracleProgram::GenericDxfeed { asset_type, symbol } => {
                 post_equity_or_commodity_price(cmd, asset_type, &symbol)
             }
             PostableOracleProgram::SingleCommodityPrice { symbol } => {
@@ -459,16 +459,16 @@ fn post_caplight_eod_market_price(
 
 fn post_equity_or_commodity_price(
     cmd: Cmd<'_>,
-    asset_type: EquityOrCommodityPriceSymbol,
+    asset_type: DxfeedSymbol,
     symbol: &str,
 ) -> std::result::Result<(), anyhow::Error> {
     let asset_type = match asset_type {
-        EquityOrCommodityPriceSymbol::Commodity => "cfd",
-        EquityOrCommodityPriceSymbol::Equity => "equity",
-        EquityOrCommodityPriceSymbol::Fx => "fx",
-        EquityOrCommodityPriceSymbol::FxR => "fx_r",
-        EquityOrCommodityPriceSymbol::UslfQ => "uslf_q",
-        EquityOrCommodityPriceSymbol::UslfT => "uslf_t",
+        DxfeedSymbol::Commodity => "cfd",
+        DxfeedSymbol::Equity => "equity",
+        DxfeedSymbol::Fx => "fx",
+        DxfeedSymbol::FxR => "fx_r",
+        DxfeedSymbol::UslfQ => "uslf_q",
+        DxfeedSymbol::UslfT => "uslf_t",
     };
     let exec_input = format!("{asset_type}/{symbol}");
     cmd.arg("--exec-inputs")

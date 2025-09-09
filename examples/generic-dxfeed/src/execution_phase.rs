@@ -114,10 +114,6 @@ pub fn execution_phase() -> Result<()> {
             timeout_ms: Some(20_000),
         }),
     );
-    log!(
-        "HTTP Response: {}",
-        String::from_utf8(response.bytes.clone())?
-    );
 
     // Handle the case where the HTTP request failed or was rejected.
     if !response.is_ok() {

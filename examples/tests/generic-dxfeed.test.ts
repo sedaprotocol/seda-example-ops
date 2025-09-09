@@ -9,7 +9,7 @@ import {
   RevealKind,
 } from './utils.js';
 
-const WASM_PATH = 'target/wasm32-wasip1/release/equity-or-commodity-price.wasm';
+const WASM_PATH = 'target/wasm32-wasip1/release/generic-dxfeed.wasm';
 
 const fetchMock = mock();
 

@@ -1,5 +1,5 @@
 [package]
-name = "equity-or-commodity-price"
+name = "generic-dxfeed"
 version = "0.1.0"
 edition = "2024"
 # rust-version = ""

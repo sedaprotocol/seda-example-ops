@@ -6,7 +6,7 @@ mod execution_phase;
 mod tally_phase;
 
 #[oracle_program]
-impl SingleCommodityPrice {
+impl GenericDxFeed {
     fn execute() {
         execution_phase().unwrap();
     }
