@@ -18,7 +18,7 @@ pub fn execution_phase() -> Result<()> {
     Ok(())
 }
 
-// Commodity /cfd/
+// Quote endpoints /cfd/ /uslf_q/ /fx/ /fx_r/
 // {
 //   "Quote": {
 //     "XAU/USD:BFX": {
@@ -39,36 +39,46 @@ pub fn execution_phase() -> Result<()> {
 //   "status": "OK"
 // }
 
-// Equity /uslf_q/
+// Equity /equity/ /uslf_t/
 // {
-// 	"Quote": {
+// 	"Trade": {
 // 		"AAPL:USLF24": {
-// 			"askExchangeCode": "U",
-// 			"askPrice": 214.44,
-// 			"askSize": 123,
-// 			"askTime": 1753707742000,
-// 			"bidExchangeCode": "U",
-// 			"bidPrice": 214.2,
-// 			"bidSize": 157,
-// 			"bidTime": 1753707657000,
+// 			"change": 0,
+// 			"dayId": 20297,
+// 			"dayTurnover": 12405806.53,
+// 			"dayVolume": 57773,
 // 			"eventSymbol": "AAPL:USLF24",
 // 			"eventTime": 0,
-// 			"sequence": 0,
+// 			"exchangeCode": "V",
+// 			"extendedTradingHours": true,
+// 			"price": 213.89,
+// 			"sequence": 1071,
+// 			"size": 100,
+// 			"tickDirection": "ZERO_DOWN",
+// 			"time": 1753473599903,
 // 			"timeNanoPart": 0
 // 		}
 // 	},
 // 	"status": "OK"
 // }
 
+const ASSET_TYPES: [&str; 6] = ["cfd", "equity", "fx", "fx_r", "uslf_q", "uslf_t"];
+
 #[derive(serde::Deserialize)]
-struct PriceResponse {
+struct QuoteResponse {
     #[serde(rename = "Quote")]
     quote: serde_json::value::Map<String, serde_json::value::Value>,
 }
 
+#[derive(serde::Deserialize)]
+struct TradeResponse {
+    #[serde(rename = "Trade")]
+    trade: serde_json::value::Map<String, serde_json::value::Value>,
+}
+
 #[cfg(any(feature = "testnet", feature = "mainnet"))]
 pub fn execution_phase() -> Result<()> {
-    // Expected to be in the format "symbol,..." (e.g., "fx/XAU/USD" or "equity/AAPL")
+    // Expected to be in the format "symbol,..." (e.g., "cfd/XAU/USD", "equity/AAPL")
     use seda_sdk_rs::HttpFetchOptions;
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
 
@@ -86,22 +96,14 @@ pub fn execution_phase() -> Result<()> {
         anyhow::anyhow!("Invalid input format")
     })?;
 
-    let url = match asset_type {
-        "fx" => {
-            log!("Fetching commodity price for: {symbol}");
-            [API_URL, "cfd/", symbol].concat()
-        }
-        "equity" => {
-            log!("Fetching equity price for: {symbol}");
-            [API_URL, "uslf_q/", symbol].concat()
-        }
-        _ => {
-            elog!("Invalid asset type. Expected 'fx' or 'equity'.");
-            Process::error("Invalid asset type".as_bytes());
-            return Ok(());
-        }
-    };
+    if !ASSET_TYPES.contains(&asset_type) {
+        elog!("Invalid asset type. Expected one of: {:?}", ASSET_TYPES);
+        Process::error("Invalid asset type".as_bytes());
+        return Ok(());
+    }
+    log!("Fetching price for asset type: {asset_type}, symbol: {symbol}");
 
+    let url = [API_URL, asset_type, "/", symbol].concat();
     let response = proxy_http_fetch(
         url,
         Some(PROXY_PUBLIC_KEY.to_string()),
@@ -111,6 +113,10 @@ pub fn execution_phase() -> Result<()> {
             body: None,
             timeout_ms: Some(20_000),
         }),
+    );
+    log!(
+        "HTTP Response: {}",
+        String::from_utf8(response.bytes.clone())?
     );
 
     // Handle the case where the HTTP request failed or was rejected.
@@ -124,19 +130,28 @@ pub fn execution_phase() -> Result<()> {
         return Ok(());
     }
 
-    let response_data = serde_json::from_slice::<PriceResponse>(&response.bytes)?;
+    let path = match asset_type {
+        "cfd" => format!("{symbol}:BFX"),
+        "equity" => symbol.to_string(),
+        "fx" => format!("{symbol}/USD"),
+        "fx_r" => format!("USD/{symbol}"),
+        "uslf_q" | "uslf_t" => format!("{symbol}:USLF24"),
+        _ => unreachable!(),
+    };
 
     // Parse the API response as defined earlier.
     let price = match asset_type {
-        "fx" => response_data
-            .quote
-            .get(&format!("{symbol}:BFX"))
-            .and_then(|quote| quote.get("askPrice"))
-            .and_then(|price| price.as_f64()),
-        "equity" => response_data
-            .quote
-            .get(&format!("{symbol}:USLF24"))
-            .and_then(|quote| quote.get("askPrice"))
+        "cfd" | "fx" | "fx_r" | "uslf_q" => {
+            serde_json::from_slice::<QuoteResponse>(&response.bytes)?
+                .quote
+                .get(&path)
+                .and_then(|quote| quote.get("askPrice"))
+                .and_then(|price| price.as_f64())
+        }
+        "equity" | "uslf_t" => serde_json::from_slice::<TradeResponse>(&response.bytes)?
+            .trade
+            .get(&path)
+            .and_then(|quote| quote.get("price"))
             .and_then(|price| price.as_f64()),
         _ => unreachable!(),
     }

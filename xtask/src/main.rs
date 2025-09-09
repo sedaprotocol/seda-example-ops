@@ -54,6 +54,10 @@ impl OracleProgram {
 enum EquityOrCommodityPriceSymbol {
     Commodity,
     Equity,
+    Fx,
+    FxR,
+    UslfQ,
+    UslfT,
 }
 
 /// The oracle programs that can have a data request posted to a network.
@@ -459,8 +463,12 @@ fn post_equity_or_commodity_price(
     symbol: &str,
 ) -> std::result::Result<(), anyhow::Error> {
     let asset_type = match asset_type {
-        EquityOrCommodityPriceSymbol::Commodity => "fx",
+        EquityOrCommodityPriceSymbol::Commodity => "cfd",
         EquityOrCommodityPriceSymbol::Equity => "equity",
+        EquityOrCommodityPriceSymbol::Fx => "fx",
+        EquityOrCommodityPriceSymbol::FxR => "fx_r",
+        EquityOrCommodityPriceSymbol::UslfQ => "uslf_q",
+        EquityOrCommodityPriceSymbol::UslfT => "uslf_t",
     };
     let exec_input = format!("{asset_type}/{symbol}");
     cmd.arg("--exec-inputs")
