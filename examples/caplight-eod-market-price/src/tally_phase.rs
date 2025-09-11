@@ -27,19 +27,20 @@ pub fn tally_phase() -> Result<()> {
     }
 
     // If there are valid prices revealed, calculate the median price from price reports.
-    let final_prices = median(&revealed_prices);
-    log!("Final median prices: {final_prices:?}");
+    let final_price = median(&revealed_prices);
+    log!("Final median prices: {final_price:?}");
 
-    // Encode the final median price as a EVM `uint256`.
-    let result = ethabi::encode(&[final_prices]);
+    let price_float = final_price as f64 / 1_000_000.0;
+    log!("Final median price float: {price_float:?}");
+
     // Report the successful result in the tally phase.
-    Process::success(&result);
+    Process::success(price_float.to_string().as_bytes());
 
     Ok(())
 }
 
 /// Finds the median of a list of prices per price report.
-fn median(data: &[u128]) -> Token {
+fn median(data: &[u128]) -> u128 {
     let m = data.len();
 
     // If there are no valid prices, report an error.
@@ -60,6 +61,5 @@ fn median(data: &[u128]) -> Token {
         sorted_data[m / 2]
     };
 
-    // convert to Token::Uint for encoding
-    Token::Uint(U256::from(median_price))
+    median_price
 }
