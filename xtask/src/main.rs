@@ -15,6 +15,7 @@ struct Cli {
 /// The oracle programs that can be managed.
 #[derive(Clone, ValueEnum)]
 enum OracleProgram {
+    JupPriceFeed,
     BlocksizeBidask,
     BlocksizeVwap,
     CaplightEodMarketPrice,
@@ -32,6 +33,7 @@ impl OracleProgram {
     fn as_str(&self) -> &str {
         match self {
             OracleProgram::BlocksizeBidask => "blocksize-bidask",
+            OracleProgram::JupPriceFeed => "jup-price-feed",
             OracleProgram::BlocksizeVwap => "blocksize-vwap",
             OracleProgram::CaplightEodMarketPrice => "caplight-eod-market-price",
             OracleProgram::SingleCommodityPrice => "single-commodity-price",
@@ -49,6 +51,9 @@ impl OracleProgram {
 /// The oracle programs that can have a data request posted to a network.
 #[derive(Subcommand)]
 enum PostableOracleProgram {
+    JupPriceFeed {
+        symbol: String,
+    },
     BlocksizeBidask {
         symbol: String,
     },
@@ -376,6 +381,7 @@ impl PostDataRequest {
         };
 
         match self.oracle_program {
+            PostableOracleProgram::JupPriceFeed { symbol } => post_jup_price_feed(cmd, &symbol),
             PostableOracleProgram::BlocksizeBidask { symbol } => {
                 post_blocksize_bidask(cmd, &symbol)
             }
@@ -409,6 +415,11 @@ fn post_blocksize_bidask(cmd: Cmd<'_>, symbol: &str) -> std::result::Result<(), 
         .arg("--decode-abi")
         .arg("uint256")
         .run()?;
+    Ok(())
+}
+
+fn post_jup_price_feed(cmd: Cmd<'_>, id: &str) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs").arg(id).run()?;
     Ok(())
 }
 
