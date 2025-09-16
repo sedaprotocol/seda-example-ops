@@ -8,9 +8,9 @@ const API_URL: &str = "https://seda-proxy.blocksize.dev/proxy/vwap/";
 const PROXY_PUBLIC_KEY: &str = "029a10be2771c4933b1a0f4d5efa9d6cdfbd05b0b1749587fc1b1771394490d29b";
 
 #[cfg(feature = "mainnet")]
-const API_URL: &str = "";
+const API_URL: &str = "https://seda-proxy.blocksize.capital/proxy/vwap/";
 #[cfg(feature = "mainnet")]
-const PROXY_PUBLIC_KEY: &str = "";
+const PROXY_PUBLIC_KEY: &str = "03748c38f98a18b0ca8da9a33ede357f6502b2f5ea3c42c540cca54458a1ed340e";
 
 #[cfg(not(any(feature = "testnet", feature = "mainnet")))]
 pub fn execution_phase() -> Result<()> {
@@ -30,9 +30,6 @@ const VALID_FIELDS: &[&str] = &["price", "size", "volume", "ts"];
 
 #[cfg(any(feature = "testnet", feature = "mainnet"))]
 pub fn execution_phase() -> Result<()> {
-    #[cfg(feature = "mainnet")]
-    unimplemented!("Mainnet not yet supported");
-
     // Expected to be in the format "symbol" (e.g., "ETHUSD" or "BTCUSD").
     // Optionally followed by the field names (e.g., "price,size") separated by a hyphen(-).
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;

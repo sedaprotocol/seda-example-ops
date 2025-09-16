@@ -2,7 +2,7 @@
 
 Deployments:
 - [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/5f4b8b833396c5aa2c705f2f67029f820cad81fe786b68f59aa43577a3323526)
-<!-- - [Mainnet](https://explorer.seda.xyz/oracle-programs/) -->
+- [Mainnet](https://explorer.seda.xyz/oracle-programs/727f1dd64209ceb66db3dd80ac5ac7cd7c767b13ecbdfab91c4a8bd30743bed7)
 
 
 ## Overview
