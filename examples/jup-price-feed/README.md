@@ -11,7 +11,7 @@ This Oracle Program gets the price of a specified Solana token in USD by leverag
 You can test this Oracle Program on testnet with the following command:
 
 ```sh
-cargo post-dr jup-price-feed So11111111111111111111111111111111111111112 -i 739a91df635cca0bad6fe510ba46737ade9eed81f9b431198889cfd687abc03d
+cargo post-dr jup-price-feed -n seda So11111111111111111111111111111111111111112 -i 739a91df635cca0bad6fe510ba46737ade9eed81f9b431198889cfd687abc03d
 ```
 
 ## Execution Phase:
