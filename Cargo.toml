@@ -3,6 +3,7 @@ resolver = "2"
 default-members = ["xtask"]
 members = [
 	"examples/blocksize-bidask",
+	"examples/jup-price-feed",
 	"examples/blocksize-vwap",
 	"examples/caplight-eod-market-price",
 	"examples/evm-price-feed",
