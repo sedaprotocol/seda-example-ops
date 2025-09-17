@@ -15,8 +15,8 @@ testnet = []
 mainnet = []
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0" }
 anyhow = "1.0"
-serde_json = { version = "1.0", features = ["preserve_order"] }
+serde_json = { version = "1.0"}
 seda-sdk-rs = { version = "1.1", default-features = false }
 ethabi = "18.0"

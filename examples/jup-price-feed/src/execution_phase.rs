@@ -57,7 +57,7 @@ pub fn execution_phase() -> Result<()> {
     log!("Fetched price: {price:?}");
 
     // Report the successful result back to the SEDA network.
-    Process::success(&price.to_string().as_bytes());
+    Process::success(&price.to_le_bytes());
 
     Ok(())
 }
