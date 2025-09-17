@@ -561,24 +561,24 @@ fn post_multi_price_feed(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(),
     Ok(())
 }
 
-fn post_kalshi_multi_market_feed(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(), anyhow::Error> {
-    cmd.arg("--exec-inputs")
-        .arg(symbols)
-        .run()?;
+fn post_kalshi_multi_market_feed(
+    cmd: Cmd<'_>,
+    symbols: &str,
+) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs").arg(symbols).run()?;
     Ok(())
 }
 
-fn post_kalshi_polymarket_vwap(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(), anyhow::Error> {
-    cmd.arg("--exec-inputs")
-        .arg(symbols)
-        .run()?;
+fn post_kalshi_polymarket_vwap(
+    cmd: Cmd<'_>,
+    symbols: &str,
+) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs").arg(symbols).run()?;
     Ok(())
 }
 
 fn post_kalshi_simple_feed(cmd: Cmd<'_>, symbol: &str) -> std::result::Result<(), anyhow::Error> {
-    cmd.arg("--exec-inputs")
-        .arg(symbol)
-        .run()?;
+    cmd.arg("--exec-inputs").arg(symbol).run()?;
     Ok(())
 }
 

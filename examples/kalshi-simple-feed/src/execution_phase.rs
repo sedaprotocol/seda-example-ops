@@ -1,5 +1,5 @@
 use anyhow::Result;
-use seda_sdk_rs::{elog, http_fetch, log, Process};
+use seda_sdk_rs::{Process, elog, http_fetch, log};
 use serde::{Deserialize, Serialize};
 
 // ============================================================================
@@ -34,10 +34,12 @@ pub fn execution_phase() -> Result<()> {
 
     // Step 1: Get market information
     let market_response = http_fetch(
-                format!("https://api.elections.kalshi.com/trade-api/v2/markets/{}", market_ticker),
+        format!(
+            "https://api.elections.kalshi.com/trade-api/v2/markets/{}",
+            market_ticker
+        ),
         None,
     );
-
 
     // Check if the market request was successful
     if !market_response.is_ok() {

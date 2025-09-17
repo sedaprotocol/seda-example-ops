@@ -29,12 +29,11 @@ pub fn tally_phase() -> Result<()> {
     let final_prices = median_each_asset(&revealed_prices);
     log!("Final median prices: {final_prices:?}");
 
-    let final_prices_json = serde_json::to_string(&final_prices)
-        .map_err(|err| {
-            elog!("Failed to convert final prices to JSON: {err}");
-            Process::error("Error converting final prices to JSON".as_bytes());
-            anyhow::anyhow!("Failed to convert final prices to JSON: {err}")
-        })?;
+    let final_prices_json = serde_json::to_string(&final_prices).map_err(|err| {
+        elog!("Failed to convert final prices to JSON: {err}");
+        Process::error("Error converting final prices to JSON".as_bytes());
+        anyhow::anyhow!("Failed to convert final prices to JSON: {err}")
+    })?;
     // Report the successful result in the tally phase.
     Process::success(&final_prices_json.as_bytes());
 

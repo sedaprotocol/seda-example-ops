@@ -1,5 +1,5 @@
 use anyhow::Result;
-use seda_sdk_rs::{elog, get_reveals, log, Process};
+use seda_sdk_rs::{Process, elog, get_reveals, log};
 
 /**
  * Executes the tally phase within the SEDA network.

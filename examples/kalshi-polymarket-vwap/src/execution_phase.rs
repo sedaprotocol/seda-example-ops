@@ -1,5 +1,5 @@
 use anyhow::Result;
-use seda_sdk_rs::{elog, http_fetch, log, Process};
+use seda_sdk_rs::{Process, elog, http_fetch, log};
 use serde::{Deserialize, Serialize};
 
 // ============================================================================
@@ -43,14 +43,20 @@ pub fn execution_phase() -> Result<()> {
 
     let market_tickers: Vec<&str> = dr_inputs_trimmed.split(',').collect();
 
-    log!("Fetching market data from Kalshi and PolyMarket for market: {} and {}", market_tickers[0], market_tickers[1]);
+    log!(
+        "Fetching market data from Kalshi and PolyMarket for market: {} and {}",
+        market_tickers[0],
+        market_tickers[1]
+    );
 
     // Step 1: Fetch Kalshi market data (yes bid price and volume)
     let kalshi_market_response = http_fetch(
-                format!("https://api.elections.kalshi.com/trade-api/v2/markets/{}", market_tickers[0]),
+        format!(
+            "https://api.elections.kalshi.com/trade-api/v2/markets/{}",
+            market_tickers[0]
+        ),
         None,
     );
-
 
     // Check if the market request was successful
     if !kalshi_market_response.is_ok() {
@@ -62,10 +68,10 @@ pub fn execution_phase() -> Result<()> {
         Process::error("Error while fetching market information".as_bytes());
         return Ok(());
     }
-    
-    
+
     // Parse market informationmarket_response
-    let kalshi_market_data = serde_json::from_slice::<KalshiMarketResponse>(&kalshi_market_response.bytes)?;
+    let kalshi_market_data =
+        serde_json::from_slice::<KalshiMarketResponse>(&kalshi_market_response.bytes)?;
     log!(
         "Fetched Kalshi Price (YES BID): {} cents with volume {}",
         kalshi_market_data.market.yes_bid_dollars,
@@ -74,13 +80,14 @@ pub fn execution_phase() -> Result<()> {
 
     let kalshi_yes_bid_dollars = kalshi_market_data.market.yes_bid_dollars.parse::<f64>()?;
 
-
     // Step 2: Fetch PolyMarket market data (yes outcome price and volume)
     let polymarket_market_response = http_fetch(
-                format!("https://gamma-api.polymarket.com/markets/{}", market_tickers[1]),
+        format!(
+            "https://gamma-api.polymarket.com/markets/{}",
+            market_tickers[1]
+        ),
         None,
     );
-
 
     // Check if the market request was successful
     if !polymarket_market_response.is_ok() {
@@ -92,10 +99,12 @@ pub fn execution_phase() -> Result<()> {
         Process::error("Error while fetching market information".as_bytes());
         return Ok(());
     }
-    
+
     // Parse market informationmarket_response
-    let poly_market_market_data = serde_json::from_slice::<PolyMarketMarket>(&polymarket_market_response.bytes)?;
-    let outcome_prices_array: Vec<String> = serde_json::from_str(&poly_market_market_data.outcome_prices)?;
+    let poly_market_market_data =
+        serde_json::from_slice::<PolyMarketMarket>(&polymarket_market_response.bytes)?;
+    let outcome_prices_array: Vec<String> =
+        serde_json::from_str(&poly_market_market_data.outcome_prices)?;
     let polymarket_yes_price = outcome_prices_array[0].parse::<f64>()?; // 0 = yes price
 
     log!(
@@ -104,12 +113,11 @@ pub fn execution_phase() -> Result<()> {
         poly_market_market_data.volume
     );
 
-
     let poly_market_volume = poly_market_market_data.volume.parse::<f64>()?;
 
     // Step 3: Calculate volume-weighted average price between Kalshi and PolyMarket
     let total_volume = kalshi_market_data.market.volume as f64 + poly_market_volume;
-    
+
     if total_volume == 0.0 {
         elog!("Total volume is zero, cannot calculate volume weighted average price");
         Process::error("Error: Total volume is zero".as_bytes());
@@ -121,7 +129,8 @@ pub fn execution_phase() -> Result<()> {
     let polymarket_weighted_price = polymarket_yes_price * poly_market_volume;
 
     // Final volume-weighted average: (sum of weighted prices) / (total volume)
-    let volume_weighted_average_price = (kalshi_weighted_price + polymarket_weighted_price) / total_volume;
+    let volume_weighted_average_price =
+        (kalshi_weighted_price + polymarket_weighted_price) / total_volume;
 
     log!(
         "Volume Weighted Average Price: {:.8} cents",

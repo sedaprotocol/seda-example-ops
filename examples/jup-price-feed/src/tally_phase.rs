@@ -11,7 +11,10 @@ pub fn tally_phase() -> Result<()> {
         let price = match reveal_bytes.as_slice().try_into() {
             Ok(bytes) => f64::from_le_bytes(bytes),
             Err(_) => {
-                elog!("Failed to parse revealed price: expected 8 bytes for f64, got {} bytes", reveal_bytes.len());
+                elog!(
+                    "Failed to parse revealed price: expected 8 bytes for f64, got {} bytes",
+                    reveal_bytes.len()
+                );
                 continue;
             }
         };

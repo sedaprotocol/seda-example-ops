@@ -1,5 +1,5 @@
 use anyhow::Result;
-use seda_sdk_rs::{elog, http_fetch, log, Process};
+use seda_sdk_rs::{Process, elog, http_fetch, log};
 use serde::{Deserialize, Serialize};
 
 // ============================================================================
@@ -27,7 +27,7 @@ struct KalshiMarketResponse {
 pub fn execution_phase() -> Result<()> {
     // Retrieve the input parameters for the data request (DR).
     // Expected to be comma-separated market tickers (e.g., "KXGDP-24DEC31,KXGDP-25MAR31").
-    
+
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
 
     let dr_inputs_trimmed = dr_inputs_raw.trim();
@@ -41,7 +41,10 @@ pub fn execution_phase() -> Result<()> {
 
         // Step 1: Get market information
         let series_response = http_fetch(
-            format!("https://api.elections.kalshi.com/trade-api/v2/markets/{}", market_ticker),
+            format!(
+                "https://api.elections.kalshi.com/trade-api/v2/markets/{}",
+                market_ticker
+            ),
             None,
         );
 
@@ -63,9 +66,8 @@ pub fn execution_phase() -> Result<()> {
             market_data.market.yes_bid
         );
 
-        yes_bids.push(market_data.market.yes_bid);  
+        yes_bids.push(market_data.market.yes_bid);
     }
-    
 
     let yes_bids_bytes = serde_json::to_vec(&yes_bids)?;
     Process::success(&yes_bids_bytes);
