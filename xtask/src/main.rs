@@ -22,6 +22,9 @@ enum OracleProgram {
     EvmPriceFeed,
     GenericDxfeed,
     MultiPriceFeed,
+    KalshiMultiMarketFeed,
+    KalshiPolymarketVwap,
+    KalshiSimpleFeed,
     SingleCommodityPrice,
     SingleEquityPrice,
     SingleEquityPriceVerification,
@@ -40,6 +43,9 @@ impl OracleProgram {
             OracleProgram::EvmPriceFeed => "evm-price-feed",
             OracleProgram::GenericDxfeed => "generic-dxfeed",
             OracleProgram::MultiPriceFeed => "multi-price-feed",
+            OracleProgram::KalshiMultiMarketFeed => "kalshi-multi-market-feed",
+            OracleProgram::KalshiPolymarketVwap => "kalshi-polymarket-vwap",
+            OracleProgram::KalshiSimpleFeed => "kalshi-simple-feed",
             OracleProgram::SingleCommodityPrice => "single-commodity-price",
             OracleProgram::SingleEquityPrice => "single-equity-price",
             OracleProgram::SingleEquityPriceVerification => "single-equity-price-verification",
@@ -99,6 +105,18 @@ enum PostableOracleProgram {
     MultiPriceFeed {
         /// A price pair of symbols to fetch prices for (e.g., BTC-USDT, ETH-USD)
         symbols: String,
+    },
+    KalshiMultiMarketFeed {
+        /// A list of Kalshi market tickers to fetch prices for (e.g., KXGDP-24DEC31,KXGDP-25MAR31)
+        symbols: String,
+    },
+    KalshiPolymarketVwap {
+        /// A list of Kalshi and PolyMarket market tickers to fetch prices for (e.g., KXSB-26-BUF,540209)
+        symbols: String,
+    },
+    KalshiSimpleFeed {
+        /// A Kalshi market ticker to fetch prices for (e.g., KXPRESPERSON-28-JVAN)
+        symbol: String,
     },
     SinglePriceFeed {
         /// Comma-separated list of symbols to fetch prices for (e.g., BTC,ETH)
@@ -268,6 +286,9 @@ fn try_main() -> Result<()> {
                 OracleProgram::GenericDxfeed,
                 OracleProgram::EvmPriceFeed,
                 OracleProgram::MultiPriceFeed,
+                OracleProgram::KalshiMultiMarketFeed,
+                OracleProgram::KalshiPolymarketVwap,
+                OracleProgram::KalshiSimpleFeed,
                 OracleProgram::SingleCommodityPrice,
                 OracleProgram::SingleEquityPrice,
                 OracleProgram::SingleEquityPriceVerification,
@@ -423,6 +444,15 @@ impl PostDataRequest {
             PostableOracleProgram::MultiPriceFeed { symbols } => {
                 post_multi_price_feed(cmd, &symbols)
             }
+            PostableOracleProgram::KalshiMultiMarketFeed { symbols } => {
+                post_kalshi_multi_market_feed(cmd, &symbols)
+            }
+            PostableOracleProgram::KalshiPolymarketVwap { symbols } => {
+                post_kalshi_polymarket_vwap(cmd, &symbols)
+            }
+            PostableOracleProgram::KalshiSimpleFeed { symbol } => {
+                post_kalshi_simple_feed(cmd, &symbol)
+            }
             PostableOracleProgram::SinglePriceFeed { symbols }
             | PostableOracleProgram::SinglePriceFeedVerification { symbols } => {
                 post_single_price_feed(cmd, &symbols)
@@ -526,7 +556,28 @@ fn post_multi_price_feed(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(),
     cmd.arg("--exec-inputs")
         .arg(symbols)
         .arg("--decode-abi")
-        .arg("uint256")
+        .arg("string")
+        .run()?;
+    Ok(())
+}
+
+fn post_kalshi_multi_market_feed(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs")
+        .arg(symbols)
+        .run()?;
+    Ok(())
+}
+
+fn post_kalshi_polymarket_vwap(cmd: Cmd<'_>, symbols: &str) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs")
+        .arg(symbols)
+        .run()?;
+    Ok(())
+}
+
+fn post_kalshi_simple_feed(cmd: Cmd<'_>, symbol: &str) -> std::result::Result<(), anyhow::Error> {
+    cmd.arg("--exec-inputs")
+        .arg(symbol)
         .run()?;
     Ok(())
 }

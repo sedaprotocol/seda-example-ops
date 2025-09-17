@@ -31,6 +31,9 @@ Clink the links below to learn how to quickly post a Data Request specifically f
 - [Single Price Feed Verification](./examples/single-price-feed-verification/README.md#overview)
 - [EVM Price Feed](./examples/evm-price-feed/README.md#overview)
 - [US Rates](./examples/us-rates/README.md#overview)
+- [Kalshi Simple Feed](./examples/kalshi-simple-feed/README.md#overview)
+- [Kalshi Multi-Market Feed](./examples/kalshi-multi-market-feed/README.md#overview)
+- [Kalshi-PolyMarket VWAP](./examples/kalshi-polymarket-vwap/README.md#overview)
 
 ## Requirements
 
@@ -61,6 +64,9 @@ Please find a few example Oracle Programs here:
 - [Single Price Feed Verification](./examples/single-price-feed-verification/README.md#overview)
 - [EVM Price Feed](./examples/evm-price-feed/README.md): A price feed using the public Binance API, and its inputs are also EVM ABI format.
 - [US Rates](./examples/us-rates/README.md): Get the prices of US Assets using the Nobi API behind a Data Proxy.
+- [Kalshi Simple Feed](./examples/kalshi-simple-feed/README.md): Fetches YES bid prices for a single Kalshi prediction market with consensus pricing.
+- [Kalshi Multi-Market Feed](./examples/kalshi-multi-market-feed/README.md): Fetches YES bid prices for multiple Kalshi prediction markets simultaneously.
+- [Kalshi-PolyMarket VWAP](./examples/kalshi-polymarket-vwap/README.md): Calculates Volume-Weighted Average Price between Kalshi and PolyMarket for the same prediction market.
 
 Each example can be interacted with in various ways.
 In order to receive help information for them you can run:
