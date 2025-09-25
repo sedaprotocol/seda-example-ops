@@ -5,11 +5,13 @@ edition = "2024"
 # rust-version = ""
 
 [features]
-default = ["env-testnet"]
+default = ["env-testnet", "eth-result"]
 seda-hide = ["seda-sdk-rs/hide-panic-paths"]
 env-testnet = ["testnet", "seda-hide"]
 env-mainnet = ["mainnet", "seda-hide"]
 test = ["testnet"]
+str-result = []
+eth-result = ["dep:ethabi"]
 
 testnet = []
 mainnet = []
@@ -18,4 +20,4 @@ mainnet = []
 anyhow = "1.0"
 serde_json = "1.0"
 seda-sdk-rs = { version = "1.1", default-features = false }
-ethabi = "18.0"
+ethabi = { version = "18.0", optional = true }

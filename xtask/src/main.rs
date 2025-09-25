@@ -13,12 +13,15 @@ struct Cli {
 }
 
 /// The oracle programs that can be managed.
-#[derive(Clone, ValueEnum)]
+#[derive(Clone, Subcommand)]
 enum OracleProgram {
     JupPriceFeed,
     BlocksizeBidask,
     BlocksizeVwap,
-    CaplightEodMarketPrice,
+    CaplightEodMarketPrice {
+        #[arg(long, default_value_t = false)]
+        str_format: bool,
+    },
     EvmPriceFeed,
     GenericDxfeed,
     MultiPriceFeed,
@@ -36,7 +39,7 @@ impl OracleProgram {
             OracleProgram::BlocksizeBidask => "blocksize-bidask",
             OracleProgram::JupPriceFeed => "jup-price-feed",
             OracleProgram::BlocksizeVwap => "blocksize-vwap",
-            OracleProgram::CaplightEodMarketPrice => "caplight-eod-market-price",
+            OracleProgram::CaplightEodMarketPrice { str_format: _ } => "caplight-eod-market-price",
             OracleProgram::EvmPriceFeed => "evm-price-feed",
             OracleProgram::GenericDxfeed => "generic-dxfeed",
             OracleProgram::MultiPriceFeed => "multi-price-feed",
@@ -75,6 +78,8 @@ enum PostableOracleProgram {
         pair: String,
     },
     CaplightEodMarketPrice {
+        #[arg(long, default_value_t = false)]
+        str_result: bool,
         /// The project ID to fetch prices for.
         project_id: String,
     },
@@ -184,6 +189,7 @@ enum Commands {
     /// Compile an oracle program for a specific Seda network.
     Compile {
         /// The oracle program to compile.
+        #[command(subcommand)]
         oracle_program: OracleProgram,
         /// The Seda network to compile the oracle program for.
         #[arg(value_enum, default_value_t = SedaNetwork::Testnet)]
@@ -192,6 +198,7 @@ enum Commands {
     /// Deploy an oracle program to a specific Seda network.
     Deploy {
         /// The oracle program to deploy.
+        #[command(subcommand)]
         oracle_program: OracleProgram,
         /// The Seda network to deploy the oracle program to.
         #[arg(global = true, short, long, value_enum, default_value_t = SedaNetwork::Testnet)]
@@ -206,6 +213,7 @@ enum Commands {
     #[clap(alias = "test-op")]
     TestOracleProgram {
         /// The oracle program to test.
+        #[command(subcommand)]
         oracle_program: OracleProgram,
         /// The test name pattern to use.
         test_name_pattern: Option<String>,
@@ -264,7 +272,7 @@ fn try_main() -> Result<()> {
             let programs = [
                 OracleProgram::BlocksizeBidask,
                 OracleProgram::BlocksizeVwap,
-                OracleProgram::CaplightEodMarketPrice,
+                OracleProgram::CaplightEodMarketPrice { str_format: false },
                 OracleProgram::GenericDxfeed,
                 OracleProgram::EvmPriceFeed,
                 OracleProgram::MultiPriceFeed,
@@ -293,11 +301,27 @@ fn compile_op(
     let program_name = oracle_program.as_str();
     let seda_network = seda_network.as_str();
 
-    cmd!(
-        sh,
-        "cargo build --target wasm32-wasip1 --release -p {program_name} --no-default-features --features {seda_network}"
-    )
-    .run()?;
+    if let OracleProgram::CaplightEodMarketPrice { str_format } = oracle_program {
+        if *str_format {
+            cmd!(
+                sh,
+                "cargo build --target wasm32-wasip1 --release -p {program_name} --no-default-features --features {seda_network},str-result"
+            )
+            .run()?;
+        } else {
+            cmd!(
+                sh,
+                "cargo build --target wasm32-wasip1 --release -p {program_name} --no-default-features --features {seda_network},eth-result"
+            )
+            .run()?;
+        }
+    } else {
+        cmd!(
+            sh,
+            "cargo build --target wasm32-wasip1 --release -p {program_name} --no-default-features --features {seda_network}"
+        )
+        .run()?;
+    };
     cmd!(
         sh,
         "wasm-strip target/wasm32-wasip1/release/{program_name}.wasm"
@@ -407,9 +431,10 @@ impl PostDataRequest {
                 post_blocksize_bidask(cmd, &symbol)
             }
             PostableOracleProgram::BlocksizeVwap { pair } => post_blocksize_vwap(cmd, &pair),
-            PostableOracleProgram::CaplightEodMarketPrice { project_id } => {
-                post_caplight_eod_market_price(cmd, &project_id)
-            }
+            PostableOracleProgram::CaplightEodMarketPrice {
+                str_result,
+                project_id,
+            } => post_caplight_eod_market_price(cmd, &project_id, str_result),
             PostableOracleProgram::GenericDxfeed { asset_type, symbol } => {
                 post_equity_or_commodity_price(cmd, asset_type, &symbol)
             }
@@ -459,12 +484,17 @@ fn post_blocksize_vwap(cmd: Cmd<'_>, pair: &str) -> std::result::Result<(), anyh
 fn post_caplight_eod_market_price(
     cmd: Cmd<'_>,
     symbol: &str,
+    str_result: bool,
 ) -> std::result::Result<(), anyhow::Error> {
-    cmd.arg("--exec-inputs")
-        .arg(symbol)
-        .arg("--decode-abi")
-        .arg("uint256")
-        .run()?;
+    let cmd = cmd.arg("--exec-inputs").arg(symbol);
+
+    let cmd = if !str_result {
+        cmd.arg("--decode-abi").arg("uint256")
+    } else {
+        cmd
+    };
+    cmd.run()?;
+
     Ok(())
 }
 

@@ -1,7 +1,8 @@
 # Caplight End of Day Market Price
 
 Deployments:
-- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/58e9a7d1c7597e9580f4f44f4e64e3946bff70868f2a6e164da6cfe340a586ee)
+- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/58e9a7d1c7597e9580f4f44f4e64e3946bff70868f2a6e164da6cfe340a586ee): Non String Result
+- [Testnet](https://testnet.explorer.seda.xyz/oracle-programs/a30be1fcb79ca173878f816f3f4bdc73be4511ceb792dd60dbb6db5faba9f50b): String Result
 <!-- - [Mainnet]() -->
 
 ## Overview
@@ -12,6 +13,12 @@ You can test this Oracle Program on testnet with the following command:
 
 ```sh
 cargo post-dr caplight-eod-market-price 54782-29 -i 58e9a7d1c7597e9580f4f44f4e64e3946bff70868f2a6e164da6cfe340a586ee -r 3
+```
+
+Or for a version that posts the result as a string you can do:
+
+```sh
+cargo post-dr caplight-eod-market-price --str-result 54782-29 -i a30be1fcb79ca173878f816f3f4bdc73be4511ceb792dd60dbb6db5faba9f50b
 ```
 
 ## Execution Phase:

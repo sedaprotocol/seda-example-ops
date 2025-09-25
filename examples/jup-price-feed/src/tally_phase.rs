@@ -11,7 +11,10 @@ pub fn tally_phase() -> Result<()> {
         let price = match reveal_bytes.as_slice().try_into() {
             Ok(bytes) => f64::from_le_bytes(bytes),
             Err(_) => {
-                elog!("Failed to parse revealed price: expected 8 bytes for f64, got {} bytes", reveal_bytes.len());
+                elog!(
+                    "Failed to parse revealed price: expected 8 bytes for f64, got {} bytes",
+                    reveal_bytes.len()
+                );
                 continue;
             }
         };
@@ -30,7 +33,7 @@ pub fn tally_phase() -> Result<()> {
     log!("Final median prices: {final_price:?}");
 
     // Report the successful result in the tally phase.
-    Process::success(&final_price.to_string().as_bytes());
+    Process::success(final_price.to_string().as_bytes());
 
     Ok(())
 }
@@ -41,11 +44,9 @@ fn median(data: &[f64]) -> f64 {
     vals.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
     let mid = vals.len() / 2;
 
-    let median_price = if vals.len() % 2 == 0 {
+    if vals.len() % 2 == 0 {
         (vals[mid - 1] + vals[mid]) / 2.0
     } else {
         vals[mid]
-    };
-
-    median_price
+    }
 }
