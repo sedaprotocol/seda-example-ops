@@ -8,9 +8,9 @@ const API_URL: &str = "http://104.155.34.32:5384/proxy/";
 const PROXY_PUBLIC_KEY: &str = "0306346975352e34719df41928048482b285d24cd27f8e5fc2df7e4095f9cc14cf";
 
 #[cfg(feature = "mainnet")]
-const API_URL: &str = todo!("http://:5384/proxy/");
+const API_URL: &str = todo!("http://34.14.120.47:5384/proxy/");
 #[cfg(feature = "mainnet")]
-const PROXY_PUBLIC_KEY: &str = todo!("");
+const PROXY_PUBLIC_KEY: &str = "02088452cd5025f33d7ce95ee8eb7ba34b94b518ea23b1897665e1afdbcae2ca18";
 
 #[cfg(not(any(feature = "testnet", feature = "mainnet")))]
 pub fn execution_phase() -> Result<()> {
@@ -35,9 +35,6 @@ pub fn execution_phase() -> Result<()> {
 #[cfg(any(feature = "testnet", feature = "mainnet"))]
 pub fn execution_phase() -> Result<()> {
     use seda_sdk_rs::{HttpFetchMethod, HttpFetchOptions};
-
-    #[cfg(feature = "mainnet")]
-    unimplemented!("Mainnet execution phase is not yet implemented");
 
     // Expected to be a valid project Id for the Caplight API.
     let dr_inputs_raw = String::from_utf8(Process::get_inputs())?;
