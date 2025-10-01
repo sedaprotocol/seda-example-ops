@@ -18,6 +18,7 @@ pub fn execution_phase() -> Result<()> {
     Ok(())
 }
 
+// Response example:
 // {
 // 	"date": "2022-09-10",
 // 	"price": 15.9,
