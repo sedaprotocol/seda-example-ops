@@ -3,9 +3,9 @@ use anyhow::Result;
 use seda_sdk_rs::{Process, elog, log, proxy_http_fetch};
 
 #[cfg(feature = "testnet")]
-const API_URL: &str = "http://104.155.34.32:5384/proxy/";
+const API_URL: &str = "http://18.130.226.194:5384/proxy/";
 #[cfg(feature = "testnet")]
-const PROXY_PUBLIC_KEY: &str = "0306346975352e34719df41928048482b285d24cd27f8e5fc2df7e4095f9cc14cf";
+const PROXY_PUBLIC_KEY: &str = "03c4dcfca973ece4da6c53d0343132a9e8801e4062017d6ae6afd09d6576a6c942";
 
 #[cfg(feature = "mainnet")]
 const API_URL: &str = todo!("http://:5384/proxy/");
@@ -63,6 +63,10 @@ pub fn execution_phase() -> Result<()> {
             timeout_ms: Some(20_000),
         }),
     );
+    log!(
+        "HTTP Response: {}",
+        String::from_utf8(response.bytes.clone())?
+    );
 
     // Check if the HTTP request was successfully fulfilled or not.
     if !response.is_ok() {
@@ -82,7 +86,7 @@ pub fn execution_phase() -> Result<()> {
         .get("price")
         .and_then(|price| price.as_f64())
         .ok_or_else(|| anyhow::anyhow!("Price not found in response"))?;
-    let price_lossless = (price * 100.0) as u128;
+    let price_lossless = (price * 1_000_000.0) as u128;
     log!("Fetched price: {price_lossless:?}");
 
     // Report the successful result back to the SEDA network.
