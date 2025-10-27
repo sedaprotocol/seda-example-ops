@@ -1,6 +1,11 @@
 [package]
+authors.workspace = true
+edition.workspace = true
 name = "xtask"
-edition = "2024"
+repository.workspace = true
+rust-version.workspace = true
+version = "0.1.0"
+
 
 [dependencies]
 anyhow = "1.0"

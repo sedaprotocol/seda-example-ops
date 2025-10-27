@@ -44,7 +44,7 @@ fn median(data: &[f64]) -> f64 {
     vals.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
     let mid = vals.len() / 2;
 
-    if vals.len() % 2 == 0 {
+    if vals.len().is_multiple_of(2) {
         (vals[mid - 1] + vals[mid]) / 2.0
     } else {
         vals[mid]

@@ -28,7 +28,7 @@ pub fn median(data: &[u128]) -> u128 {
     let mut sorted_data = data.to_vec();
     sorted_data.sort_unstable();
 
-    if m % 2 == 0 {
+    if m.is_multiple_of(2) {
         // safe average of two u128s without overflow
         let a = sorted_data[m / 2 - 1];
         let b = sorted_data[m / 2];

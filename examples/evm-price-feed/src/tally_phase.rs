@@ -44,7 +44,7 @@ pub fn tally_phase() -> Result<()> {
 /// Calculates the median of a sorted vector
 fn median_sorted(vals: &[u128]) -> u128 {
     let mid = vals.len() / 2;
-    if vals.len() % 2 == 0 {
+    if vals.len().is_multiple_of(2) {
         vals[mid - 1].midpoint(vals[mid])
     } else {
         vals[mid]

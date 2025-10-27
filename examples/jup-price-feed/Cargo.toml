@@ -1,8 +1,10 @@
 [package]
+authors.workspace = true
+edition.workspace = true
 name = "jup-price-feed"
+repository.workspace = true
+rust-version.workspace = true
 version = "0.1.0"
-edition = "2024"
-# rust-version = ""
 
 [features]
 default = ["env-testnet"]
@@ -17,6 +19,6 @@ mainnet = []
 [dependencies]
 serde = { version = "1.0" }
 anyhow = "1.0"
-serde_json = { version = "1.0"}
+serde_json = { version = "1.0" }
 seda-sdk-rs = { version = "1.1", default-features = false }
 ethabi = "18.0"
