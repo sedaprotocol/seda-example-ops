@@ -54,7 +54,7 @@ fn median_each_asset(data: &[Vec<u128>]) -> Token {
         vals.sort();
         let mid = vals.len() / 2;
 
-        let median_price = if vals.len() % 2 == 0 {
+        let median_price = if vals.len().is_multiple_of(2) {
             // safe average of two u128s without overflow
             let a = vals[mid - 1];
             let b = vals[mid];

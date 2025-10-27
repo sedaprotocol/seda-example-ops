@@ -18,6 +18,13 @@ members = [
 	"xtask",
 ]
 
+[workspace.package]
+authors = ["https://github.com/orgs/sedaprotocol/teams/devs"]
+categories = ["SEDA", "Oracle Programs"]
+edition = "2024"
+repository = "https://github.com/sedaprotocol/seda-example-ops"
+rust-version = "1.87.0"
+
 [profile.release]
 codegen-units = 1
 lto = "fat"

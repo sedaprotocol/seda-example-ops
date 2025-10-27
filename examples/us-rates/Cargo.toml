@@ -1,8 +1,11 @@
 [package]
+authors.workspace = true
+edition.workspace = true
 name = "us-rates"
+repository.workspace = true
+rust-version.workspace = true
 version = "0.1.0"
-edition = "2024"
-# rust-version = ""
+
 
 [features]
 default = ["env-testnet"]
