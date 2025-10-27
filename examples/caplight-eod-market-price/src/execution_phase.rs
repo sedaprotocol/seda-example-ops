@@ -8,9 +8,9 @@ const API_URL: &str = "http://104.155.34.32:5384/proxy/market-price-fixed-eod?";
 const PROXY_PUBLIC_KEY: &str = "0306346975352e34719df41928048482b285d24cd27f8e5fc2df7e4095f9cc14cf";
 
 #[cfg(feature = "mainnet")]
-const API_URL: &str = "http://34.14.120.47:5384/proxy/market-price-fixed-eod?";
+const API_URL: &str = "http://34.78.115.80:5384/proxy/market-price-fixed-eod?";
 #[cfg(feature = "mainnet")]
-const PROXY_PUBLIC_KEY: &str = "02088452cd5025f33d7ce95ee8eb7ba34b94b518ea23b1897665e1afdbcae2ca18";
+const PROXY_PUBLIC_KEY: &str = "02646f9ac2d6260e903eed4f6ecb7d392f5be204f93c9b5e7f883a242107280a08";
 
 #[cfg(not(any(feature = "testnet", feature = "mainnet")))]
 pub fn execution_phase() -> Result<()> {
@@ -45,33 +45,34 @@ pub fn execution_phase() -> Result<()> {
         return Ok(());
     }
 
-    let parts: Vec<&str> = dr_inputs_raw.split(',').collect();
-    let (pitchbook_id, utc_hour) = match parts.as_slice() {
-        // validate that each field is in the valid fields list
-        [pitchbook_id, utc_hour] => match *utc_hour {
-            "0" | "4" | "8" | "12" | "16" | "20" => (pitchbook_id, Some(utc_hour)),
-            _ => {
-                elog!("Invalid UTC hour format: should be one of 0,4,8,12,16,20");
-                Process::error("Invalid UTC hour format".as_bytes());
-                return Ok(());
-            }
-        },
-        [pitchbook_id] => (pitchbook_id, None),
-        _ => {
-            elog!("Invalid input format");
-            Process::error("Invalid input format".as_bytes());
-            return Ok(());
-        }
-    };
+    // let parts: Vec<&str> = dr_inputs_raw.split(',').collect();
+    // let (pitchbook_id, utc_hour) = match parts.as_slice() {
+    //     // validate that each field is in the valid fields list
+    //     [pitchbook_id, utc_hour] => match *utc_hour {
+    //         "0" | "4" | "8" | "12" | "16" | "20" => (pitchbook_id, Some(utc_hour)),
+    //         _ => {
+    //             elog!("Invalid UTC hour format: should be one of 0,4,8,12,16,20");
+    //             Process::error("Invalid UTC hour format".as_bytes());
+    //             return Ok(());
+    //         }
+    //     },
+    //     [pitchbook_id] => (pitchbook_id, None),
+    //     _ => {
+    //         elog!("Invalid input format");
+    //         Process::error("Invalid input format".as_bytes());
+    //         return Ok(());
+    //     }
+    // };
 
     // Log the asset being fetched as part of the Execution Standard Out.
-    log!("Fetching price for: {pitchbook_id}, utc_hour: {utc_hour:?}");
+    log!("Fetching price for: {dr_inputs_raw}");
 
-    let url = if let Some(utc_hour) = utc_hour {
-        [API_URL, "pitchbookId=", pitchbook_id, "?utcHour=", utc_hour].concat()
-    } else {
-        [API_URL, "pitchbookId=", pitchbook_id].concat()
-    };
+    // let url = if let Some(utc_hour) = utc_hour {
+    //     [API_URL, "pitchbookId=", pitchbook_id, "?utcHour=", utc_hour].concat()
+    // } else {
+    //     [API_URL, "pitchbookId=", pitchbook_id].concat()
+    // };
+    let url = [API_URL, "pitchbookId=", &dr_inputs_raw].concat();
     let response = proxy_http_fetch(
         url,
         Some(PROXY_PUBLIC_KEY.to_string()),
